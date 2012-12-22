@@ -98,6 +98,8 @@ public class CalendarPanel extends JPanel {
 		mtblCalendar.setColumnCount(7);
 		mtblCalendar.setRowCount(6);
 		
+		//tblCalendar.setTransferHandler(new DishTransferHandler());
+		
 		//Refresh calendar
 		refreshCalendar (realMonth, realYear); //Refresh calendar
 	}
@@ -131,12 +133,13 @@ public class CalendarPanel extends JPanel {
 		for (int i=1; i<=nod; i++){
 			int row = new Integer((i+som-2)/7);
 			int column  =  (i+som-2)%7;
-//			mtblCalendar.setValueAt(i, row, column);
 			MealDay md = manager.getMealDay(year, month+1, i);
+			if(md == null)
+				md = new MealDay(year, month+1, i);
 			mtblCalendar.setValueAt(new mealDayContainer(year, month, i, md), row, column);
 		}
 
-		//Apply renderers
+		//Apply renderer
 		tblCalendar.setDefaultRenderer(tblCalendar.getColumnClass(0), new tblCalendarRenderer());
 	}
 	
@@ -155,61 +158,29 @@ public class CalendarPanel extends JPanel {
 	}
 
 	class tblCalendarRenderer extends DefaultTableCellRenderer{
+		
 		public Component getTableCellRendererComponent (JTable table, Object value, boolean selected, boolean focused, int row, int column){
 			super.getTableCellRendererComponent(table, value, selected, focused, row, column);
 
 			mealDayContainer mdc = (mealDayContainer)value;
-			JPanel p = new JPanel();
+			Color background = new Color(255, 255, 255);
 			if(mdc != null && mdc.day == realDay && mdc.month == realMonth && mdc.year == realYear)
-				p.setBackground(new Color(220, 220, 255));
+				background = new Color(220, 220, 255);
 			else if (column == 0 || column == 6){ //Week-end
-				p.setBackground(new Color(255, 220, 220));
+				background = new Color(255, 220, 220);
 			}
-			else{ //Week
-				p.setBackground(new Color(255, 255, 255));
-			}
-			p.setForeground(Color.black);
-			drawCell(p, mdc);
-//			p.setPreferredSize(new Dimension(100, 100));
-			return p;  
-		}
-		
-		private JPanel drawCell(JPanel p, mealDayContainer mdc) {
-//			JPanel p = new JPanel();
 
-			if(mdc == null)
-				return p;
+			JPanel p = mdc != null ? new MealDayPanel(mdc.mealDay, mdc.day, background) : new JPanel();
+//			if(mdc != null) {
+//				MealDayPanel mdp = new MealDayPanel(mdc.mealDay, mdc.day, background);
+//				p = mdp;
+//			}
+//			else
+//				p = new JPanel();
 			
-			p.setLayout(new BorderLayout());
-			p.add(new JLabel(String.valueOf(mdc.day)), BorderLayout.NORTH);
-			
-			JPanel meals = new JPanel();
-			meals.setBackground(p.getBackground());
-			meals.setLayout(new GridLayout(0,1,2,2));
-//			meals.setBorder(BorderFactory.createLineBorder(Color.GREEN));
-			if(mdc.mealDay != null) {
-				MainDish mainDish = mdc.mealDay.getMainDish();
-				if(mainDish != null) {
-					JLabel mdp = new JLabel(mainDish.getName());
-					mdp.setBackground(Color.CYAN);
-					mdp.setBorder(BorderFactory.createLineBorder(Color.BLUE));
-					meals.add(mdp);
-				}
-				for(SideDish sideDish : mdc.mealDay.getSideDishes()) {
-					JLabel sdp = new JLabel(sideDish.getName());
-					sdp.setBackground(Color.PINK);
-					sdp.setBorder(BorderFactory.createLineBorder(Color.MAGENTA));
-					meals.add(sdp);
-				}
-			}
-			else
-			{
-				for(int i = 0; i < 4; i++) {
-					meals.add(new JLabel());
-				}
-			}
-			p.add(meals, BorderLayout.CENTER);
-			return p;
+			p.setForeground(Color.black);
+			p.setBackground(background);
+			return p;  
 		}
 	}
 

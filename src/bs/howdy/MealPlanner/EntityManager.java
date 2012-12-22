@@ -34,10 +34,38 @@ public class EntityManager {
 	{
 		return _mainDishes;
 	}
+	public void addMainDish(MainDish dish) {
+		_mainDishes.add(dish);
+	}
+	public void deleteMainDish(MainDish dish) {
+		int index = -1;
+		for(int i = 0; i < _mainDishes.size(); i++) {
+			if(_mainDishes.get(i).getId() == dish.getId()) {
+				index = i;
+				break;
+			}
+		}
+		if(index >= 0)
+			_mainDishes.remove(index);
+	}
 	
 	public List<SideDish> getSideDishes()
 	{
 		return _sideDishes;
+	}
+	public void addSideDish(SideDish dish) {
+		_sideDishes.add(dish);
+	}
+	public void deleteSideDish(SideDish dish) {
+		int index = -1;
+		for(int i = 0; i < _sideDishes.size(); i++) {
+			if(_sideDishes.get(i).getId() == dish.getId()) {
+				index = i;
+				break;
+			}
+		}
+		if(index >= 0)
+			_sideDishes.remove(index);
 	}
 	
 	public MealDay getMealDay(int year, int month, int day) {

@@ -1,6 +1,7 @@
 package bs.howdy.MealPlanner.Entities;
 
 public abstract class Dish {
+	
 	public Dish(int id, String name, String description) {
 		setId(id);
 		setName(name);
@@ -30,6 +31,6 @@ public abstract class Dish {
 	public void setDescription(String description) {
 		_description = description;
 	}
-	
+
 	public abstract String xmlSerialize();
 }

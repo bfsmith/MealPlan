@@ -1,5 +1,6 @@
 package bs.howdy.MealPlanner;
 
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
@@ -9,19 +10,29 @@ import java.awt.GridLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import javax.swing.JList;
 
+import bs.howdy.MealPlanner.Entities.Dish;
 import bs.howdy.MealPlanner.Entities.MainDish;
 import bs.howdy.MealPlanner.Entities.SideDish;
 import bs.howdy.MealPlanner.UI.CalendarPanel;
+import bs.howdy.MealPlanner.UI.DishList;
 import bs.howdy.MealPlanner.UI.DishListRenderer;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.LineBorder;
 import java.awt.Color;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DragGestureEvent;
+import java.awt.dnd.DragGestureListener;
+import java.awt.dnd.DragSource;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 import javax.swing.border.TitledBorder;
 import javax.swing.border.BevelBorder;
@@ -30,6 +41,8 @@ public class MainWindow {
 
 	private JFrame _frmMealPlanner;
 	private EntityManager manager;
+	private JList<MainDish> mainDishes;
+	private JList<SideDish> sideDishes;
 
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -55,6 +68,7 @@ public class MainWindow {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+//		new DnDTransferableTest();
 		manager = EntityManager.Instance();
 		
 		_frmMealPlanner = new JFrame();
@@ -62,7 +76,7 @@ public class MainWindow {
 		borderLayout.setVgap(2);
 		borderLayout.setHgap(2);
 		_frmMealPlanner.setTitle("Meal Planner");
-		_frmMealPlanner.setBounds(100, 100, 700, 688);
+		_frmMealPlanner.setBounds(100, 100, 900, 688);
 		_frmMealPlanner.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		CalendarPanel calendarPanel = new CalendarPanel();
@@ -79,15 +93,13 @@ public class MainWindow {
 		mainDishPanel.setLayout(new BorderLayout());
 		sidePanel.add(mainDishPanel, BorderLayout.NORTH);
 		
-		DefaultListModel<MainDish> mainDishModel = new DefaultListModel<MainDish>();
-		for(MainDish dish : manager.getMainDishes()) {
-			mainDishModel.addElement(dish);
-		}
-		JList<MainDish> mainDishes = new JList<MainDish>(mainDishModel);
-		mainDishes.setBorder(new TitledBorder(null, "Main Dish", TitledBorder.LEADING, TitledBorder.TOP, new Font("Arial", Font.BOLD, 16), null));
-		mainDishes.setCellRenderer(listRenderer);
-		mainDishes.setDragEnabled(true);
+		final DefaultListModel<MainDish> mainDishModel = new DefaultListModel<MainDish>();
+		populateMainDishes(mainDishModel);
+		mainDishes = new DishList<MainDish>(mainDishModel, "Main Dish");
+//		new DragSource().createDefaultDragGestureRecognizer(mainDishes,
+//				DnDConstants.ACTION_COPY, new DragGestureListImp());
 		mainDishPanel.add(mainDishes);
+		
 		
 		JPanel mainDishButtonPanel = new JPanel();
 		mainDishButtonPanel.setLayout(new GridLayout(1, 2, 2, 2));
@@ -96,7 +108,10 @@ public class MainWindow {
 		addMainDishButton.addActionListener(new ActionListener() {
 			@Override	 
 			public void actionPerformed(ActionEvent arg0) {
-				// TODO Auto-generated method stub
+				int num = manager.getMainDishes().size();
+				MainDish dish = new MainDish(num, "Main Dish " + num, "Description " + num);
+				manager.addMainDish(dish);
+				populateMainDishes(mainDishModel);
 			}
 		});
 		mainDishButtonPanel.add(addMainDishButton);
@@ -104,7 +119,10 @@ public class MainWindow {
 		deleteMainDishButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				// TODO Auto-generated method stub
+				MainDish dish = mainDishes.getSelectedValue();
+				if(dish == null) return;
+				manager.deleteMainDish(dish);
+				populateMainDishes(mainDishModel);
 			}
 		});
 		mainDishButtonPanel.add(deleteMainDishButton);
@@ -114,16 +132,10 @@ public class MainWindow {
 		sideDishPanel.setLayout(new BorderLayout());
 		sidePanel.add(sideDishPanel, BorderLayout.SOUTH);
 		
-		DefaultListModel<SideDish> sideDishModel = new DefaultListModel<SideDish>();
-		for(SideDish dish : manager.getSideDishes()) {
-			sideDishModel.addElement(dish);
-		}
-		JList<SideDish> sideDishes = new JList<SideDish>(sideDishModel);
-		sideDishes.setBorder(new TitledBorder(null, "Side Dish", TitledBorder.LEADING, TitledBorder.TOP, new Font("Arial", Font.BOLD, 16), null));
-		sideDishes.setCellRenderer(listRenderer);
-		sideDishes.setDragEnabled(true);
+		final DefaultListModel<SideDish> sideDishModel = new DefaultListModel<SideDish>();
+		populateSideDishes(sideDishModel);
+		sideDishes = new DishList<SideDish>(sideDishModel, "Side Dish");
 		sideDishPanel.add(sideDishes);
-		
 
 		JPanel sideDishButtonPanel = new JPanel();
 		sideDishButtonPanel.setLayout(new GridLayout(1, 2, 2, 2));
@@ -132,7 +144,10 @@ public class MainWindow {
 		addSideDishButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				// TODO Auto-generated method stub
+				int num = manager.getSideDishes().size();
+				SideDish dish = new SideDish(num, "Side Dish " + num, "Description " + num);
+				manager.addSideDish(dish);
+				populateSideDishes(sideDishModel);
 			}
 		});
 		sideDishButtonPanel.add(addSideDishButton);
@@ -140,15 +155,26 @@ public class MainWindow {
 		deleteSideDishButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				// TODO Auto-generated method stub
+				SideDish dish = sideDishes.getSelectedValue();
+				if(dish == null) return;
+				manager.deleteSideDish(dish);
+				populateSideDishes(sideDishModel);
 			}
 		});
 		sideDishButtonPanel.add(deleteSideDishButton);
-		
 	}
 
-	private void SetupData()
-	{
-		
+	private void populateSideDishes(DefaultListModel<SideDish> sideDishModel) {
+		sideDishModel.clear();
+		for(SideDish dish : manager.getSideDishes()) {
+			sideDishModel.addElement(dish);
+		}
+	}
+
+	private void populateMainDishes(DefaultListModel<MainDish> mainDishModel) {
+		mainDishModel.clear();
+		for(MainDish dish : manager.getMainDishes()) {
+			mainDishModel.addElement(dish);
+		}
 	}
 }

@@ -1,7 +1,6 @@
 package bs.howdy.MealPlanner.Entities;
 
 import java.util.ArrayList;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 public class MealDay {
@@ -34,7 +33,7 @@ public class MealDay {
 	public void setMainDish(MainDish mainDish) {
 		_mainDish = mainDish;
 	}
-
+	
 	private List<SideDish> _sideDishes;
 	public List<SideDish> getSideDishes() {
 		return _sideDishes;

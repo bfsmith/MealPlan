@@ -9,6 +9,8 @@ import java.io.IOException;
 import javax.swing.*;
 
 import bs.howdy.MealPlanner.Entities.Dish;
+import bs.howdy.MealPlanner.Entities.MainDish;
+import bs.howdy.MealPlanner.Entities.SideDish;
 
 public class DishTransferHandler extends TransferHandler {
 	@Override
@@ -32,6 +34,15 @@ public class DishTransferHandler extends TransferHandler {
                     else if (component instanceof JTable) {
                     	JTable table = (JTable)component;
                     	JTable.DropLocation dl = (JTable.DropLocation)support.getDropLocation();
+                    	CalendarPanel.MealDayContainer mdc = (CalendarPanel.MealDayContainer)table.getModel().getValueAt(dl.getRow(), dl.getColumn());
+                    	if(mdc != null) {
+                    		if(value instanceof MainDish) {
+                    			mdc.mealDay.setMainDish((MainDish)value);
+                    		}
+                    		else {
+                    			mdc.mealDay.addSideDish((SideDish)value);
+                    		}
+                    	}
                     	
                     	System.out.println("JTABLE " + dl.getColumn() + " , " + dl.getRow());
                     }

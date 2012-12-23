@@ -21,6 +21,8 @@ import bs.howdy.MealPlanner.Entities.SideDish;
 import bs.howdy.MealPlanner.UI.CalendarPanel;
 import bs.howdy.MealPlanner.UI.DishList;
 import bs.howdy.MealPlanner.UI.DishListRenderer;
+import bs.howdy.MealPlanner.UI.MealDayDetailsPanel;
+
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.LineBorder;
 import java.awt.Color;
@@ -43,6 +45,7 @@ public class MainWindow {
 	private EntityManager manager;
 	private JList<MainDish> mainDishes;
 	private JList<SideDish> sideDishes;
+	private MealDayDetailsPanel mealDayDetailsPanel;
 
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -76,22 +79,24 @@ public class MainWindow {
 		borderLayout.setVgap(2);
 		borderLayout.setHgap(2);
 		_frmMealPlanner.setTitle("Meal Planner");
-		_frmMealPlanner.setBounds(100, 100, 900, 688);
+		_frmMealPlanner.setBounds(100, 100, 1100, 688);
 		_frmMealPlanner.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		CalendarPanel calendarPanel = new CalendarPanel();
 		_frmMealPlanner.getContentPane().add(calendarPanel, BorderLayout.CENTER);
 		
 		DishListRenderer listRenderer = new DishListRenderer();
+
 		
-		JPanel sidePanel = new JPanel();
-		sidePanel.setPreferredSize(new Dimension(200, 600));
-		sidePanel.setLayout(new GridLayout(2, 1, 0, 0));
-		_frmMealPlanner.getContentPane().add(sidePanel, BorderLayout.WEST);
+		JPanel leftSidePanel = new JPanel();
+		leftSidePanel.setPreferredSize(new Dimension(200, 600));
+		leftSidePanel.setLayout(new GridLayout(2, 1, 0, 0));
+		_frmMealPlanner.getContentPane().add(leftSidePanel, BorderLayout.WEST);
+		
 		
 		JPanel mainDishPanel = new JPanel();
 		mainDishPanel.setLayout(new BorderLayout());
-		sidePanel.add(mainDishPanel, BorderLayout.NORTH);
+		leftSidePanel.add(mainDishPanel, BorderLayout.NORTH);
 		
 		final DefaultListModel<MainDish> mainDishModel = new DefaultListModel<MainDish>();
 		populateMainDishes(mainDishModel);
@@ -99,7 +104,6 @@ public class MainWindow {
 //		new DragSource().createDefaultDragGestureRecognizer(mainDishes,
 //				DnDConstants.ACTION_COPY, new DragGestureListImp());
 		mainDishPanel.add(mainDishes);
-		
 		
 		JPanel mainDishButtonPanel = new JPanel();
 		mainDishButtonPanel.setLayout(new GridLayout(1, 2, 2, 2));
@@ -130,7 +134,7 @@ public class MainWindow {
 
 		JPanel sideDishPanel = new JPanel();
 		sideDishPanel.setLayout(new BorderLayout());
-		sidePanel.add(sideDishPanel, BorderLayout.SOUTH);
+		leftSidePanel.add(sideDishPanel, BorderLayout.SOUTH);
 		
 		final DefaultListModel<SideDish> sideDishModel = new DefaultListModel<SideDish>();
 		populateSideDishes(sideDishModel);
@@ -162,6 +166,7 @@ public class MainWindow {
 			}
 		});
 		sideDishButtonPanel.add(deleteSideDishButton);
+		
 	}
 
 	private void populateSideDishes(DefaultListModel<SideDish> sideDishModel) {

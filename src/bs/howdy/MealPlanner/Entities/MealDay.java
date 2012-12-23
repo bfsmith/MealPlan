@@ -39,6 +39,10 @@ public class MealDay {
 		return _sideDishes;
 	}
 	public void addSideDish(SideDish sideDish) {
+		for(SideDish sd : _sideDishes) {
+			if(sd.getId() == sideDish.getId())
+				return;
+		}
 		_sideDishes.add(sideDish);
 	}
 	public void removeSideDish(SideDish sideDish) {

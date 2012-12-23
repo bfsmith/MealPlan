@@ -10,9 +10,12 @@ import java.awt.GridLayout;
 import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.GregorianCalendar;
 
 import javax.swing.BorderFactory;
+import javax.swing.DropMode;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -39,6 +42,7 @@ public class CalendarPanel extends JPanel {
 	private DefaultTableModel mtblCalendar; //Table model
 	private JScrollPane stblCalendar; //The scrollpane
 	private int realYear, realMonth, realDay, currentYear, currentMonth;
+	private MealDayDetailsPanel _mealDayDetailsPanel;
 
 	public CalendarPanel() {
 		manager = EntityManager.Instance();
@@ -66,7 +70,9 @@ public class CalendarPanel extends JPanel {
 		add(northPanel, BorderLayout.NORTH);
 		
 		add(stblCalendar);
-		
+
+		_mealDayDetailsPanel = new MealDayDetailsPanel();
+		add(_mealDayDetailsPanel, BorderLayout.EAST);
 		
 		//Get real month/year
 		GregorianCalendar cal = new GregorianCalendar(); //Create calendar
@@ -91,6 +97,7 @@ public class CalendarPanel extends JPanel {
 		//Single cell selection
 		tblCalendar.setColumnSelectionAllowed(true);
 		tblCalendar.setRowSelectionAllowed(true);
+		tblCalendar.setCellSelectionEnabled(true);
 		tblCalendar.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
 		//Set row/column count
@@ -98,7 +105,8 @@ public class CalendarPanel extends JPanel {
 		mtblCalendar.setColumnCount(7);
 		mtblCalendar.setRowCount(6);
 		
-		//tblCalendar.setTransferHandler(new DishTransferHandler());
+		tblCalendar.setDropMode(DropMode.ON);
+		tblCalendar.setTransferHandler(new DishTransferHandler());
 		
 		//Refresh calendar
 		refreshCalendar (realMonth, realYear); //Refresh calendar
@@ -115,7 +123,6 @@ public class CalendarPanel extends JPanel {
 		if (month == 0 && year <= realYear-10){btnPrev.setEnabled(false);} //Too early
 		if (month == 11 && year >= realYear+100){btnNext.setEnabled(false);} //Too late
 		lblMonth.setText(months[month] + " " + year); //Refresh the month label (at the top)
-//		lblMonth.setBounds(160-lblMonth.getPreferredSize().width/2, 25, 180, 25); //Re-align label with calendar
 		
 		//Clear table
 		for (int i=0; i<6; i++){
@@ -136,15 +143,15 @@ public class CalendarPanel extends JPanel {
 			MealDay md = manager.getMealDay(year, month+1, i);
 			if(md == null)
 				md = new MealDay(year, month+1, i);
-			mtblCalendar.setValueAt(new mealDayContainer(year, month, i, md), row, column);
+			mtblCalendar.setValueAt(new MealDayContainer(year, month, i, md), row, column);
 		}
 
 		//Apply renderer
 		tblCalendar.setDefaultRenderer(tblCalendar.getColumnClass(0), new tblCalendarRenderer());
 	}
 	
-	class mealDayContainer {
-		public mealDayContainer(int year, int month, int day, MealDay md) {
+	class MealDayContainer {
+		public MealDayContainer(int year, int month, int day, MealDay md) {
 			this.day = day;
 			this.month = month;
 			this.year = year;
@@ -162,7 +169,7 @@ public class CalendarPanel extends JPanel {
 		public Component getTableCellRendererComponent (JTable table, Object value, boolean selected, boolean focused, int row, int column){
 			super.getTableCellRendererComponent(table, value, selected, focused, row, column);
 
-			mealDayContainer mdc = (mealDayContainer)value;
+			final MealDayContainer mdc = (MealDayContainer)value;
 			Color background = new Color(255, 255, 255);
 			if(mdc != null && mdc.day == realDay && mdc.month == realMonth && mdc.year == realYear)
 				background = new Color(220, 220, 255);
@@ -170,13 +177,23 @@ public class CalendarPanel extends JPanel {
 				background = new Color(255, 220, 220);
 			}
 
-			JPanel p = mdc != null ? new MealDayPanel(mdc.mealDay, mdc.day, background) : new JPanel();
-//			if(mdc != null) {
-//				MealDayPanel mdp = new MealDayPanel(mdc.mealDay, mdc.day, background);
-//				p = mdp;
-//			}
-//			else
-//				p = new JPanel();
+			JPanel p;// = mdc != null ? new MealDayPanel(mdc.mealDay, mdc.day, background) : new JPanel();
+			if(mdc != null) {
+				MealDayPanel mdp = new MealDayPanel(mdc.mealDay, mdc.day, background);
+				if(selected) {
+					mdp.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
+	                _mealDayDetailsPanel.setMealDay(mdc.mealDay);
+				}
+				else {
+					mdp.setBorder(BorderFactory.createLineBorder(mdp.getBackground()));
+				}
+				p = mdp;
+			}
+			else {
+				if(selected)
+					_mealDayDetailsPanel.setMealDay(null);
+				p = new JPanel();
+			}
 			
 			p.setForeground(Color.black);
 			p.setBackground(background);

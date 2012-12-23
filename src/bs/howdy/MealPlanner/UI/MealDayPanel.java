@@ -18,9 +18,6 @@ public class MealDayPanel extends JPanel implements Droppable<Dish> {
 		setBackground(background);
 		_md = md;
 		setupPanel();
-		setBorder(BorderFactory.createLineBorder(Color.GREEN));
-		
-		setTransferHandler(new DishTransferHandler());
 	}
 	
 	private void updateMealDay(Dish d) {
@@ -42,7 +39,7 @@ public class MealDayPanel extends JPanel implements Droppable<Dish> {
 	private void setupPanel() {
 		JPanel meals = new JPanel();
 		meals.setBackground(getBackground());
-		meals.setLayout(new GridLayout(0,1,2,2));
+		meals.setLayout(new GridLayout(4,1,2,2));
 		
 		MainDish mainDish = _md.getMainDish();
 		if(mainDish != null) {

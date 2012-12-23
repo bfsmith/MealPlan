@@ -7,7 +7,13 @@ public abstract class Dish {
 		setName(name);
 		setDescription(description);
 	}
-	
+
+	public Dish(String name, String description) {
+		setId(-1);
+		setName(name);
+		setDescription(description);
+	}
+		
 	protected int _id;
 	public int getId() {
 		return _id;

@@ -140,7 +140,7 @@ public class CalendarPanel extends JPanel {
 		for (int i=1; i<=nod; i++){
 			int row = new Integer((i+som-2)/7);
 			int column  =  (i+som-2)%7;
-			MealDay md = manager.getMealDay(year, month+1, i);
+			MealDay md = manager.MealDays.getMealDay(year, month+1, i);
 			if(md == null)
 				md = new MealDay(year, month+1, i);
 			mtblCalendar.setValueAt(new MealDayContainer(year, month, i, md), row, column);

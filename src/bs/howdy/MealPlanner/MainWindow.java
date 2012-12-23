@@ -19,6 +19,7 @@ import bs.howdy.MealPlanner.Entities.Dish;
 import bs.howdy.MealPlanner.Entities.MainDish;
 import bs.howdy.MealPlanner.Entities.SideDish;
 import bs.howdy.MealPlanner.UI.CalendarPanel;
+import bs.howdy.MealPlanner.UI.DishCreateEdit;
 import bs.howdy.MealPlanner.UI.DishList;
 import bs.howdy.MealPlanner.UI.DishListRenderer;
 import bs.howdy.MealPlanner.UI.MealDayDetailsPanel;
@@ -101,8 +102,6 @@ public class MainWindow {
 		final DefaultListModel<MainDish> mainDishModel = new DefaultListModel<MainDish>();
 		populateMainDishes(mainDishModel);
 		mainDishes = new DishList<MainDish>(mainDishModel, "Main Dish");
-//		new DragSource().createDefaultDragGestureRecognizer(mainDishes,
-//				DnDConstants.ACTION_COPY, new DragGestureListImp());
 		mainDishPanel.add(mainDishes);
 		
 		JPanel mainDishButtonPanel = new JPanel();
@@ -112,9 +111,8 @@ public class MainWindow {
 		addMainDishButton.addActionListener(new ActionListener() {
 			@Override	 
 			public void actionPerformed(ActionEvent arg0) {
-				int num = manager.getMainDishes().size();
-				MainDish dish = new MainDish(num, "Main Dish " + num, "Description " + num);
-				manager.addMainDish(dish);
+				DishCreateEdit dce = new DishCreateEdit(DishCreateEdit.MAIN_DISH);
+				dce.setVisible(true);
 				populateMainDishes(mainDishModel);
 			}
 		});
@@ -125,7 +123,7 @@ public class MainWindow {
 			public void actionPerformed(ActionEvent arg0) {
 				MainDish dish = mainDishes.getSelectedValue();
 				if(dish == null) return;
-				manager.deleteMainDish(dish);
+				manager.MainDishes.delete(dish);
 				populateMainDishes(mainDishModel);
 			}
 		});
@@ -148,9 +146,9 @@ public class MainWindow {
 		addSideDishButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				int num = manager.getSideDishes().size();
+				int num = manager.SideDishes.getDishes().size();
 				SideDish dish = new SideDish(num, "Side Dish " + num, "Description " + num);
-				manager.addSideDish(dish);
+				manager.SideDishes.add(dish);
 				populateSideDishes(sideDishModel);
 			}
 		});
@@ -161,7 +159,7 @@ public class MainWindow {
 			public void actionPerformed(ActionEvent arg0) {
 				SideDish dish = sideDishes.getSelectedValue();
 				if(dish == null) return;
-				manager.deleteSideDish(dish);
+				manager.SideDishes.delete(dish);
 				populateSideDishes(sideDishModel);
 			}
 		});
@@ -171,14 +169,14 @@ public class MainWindow {
 
 	private void populateSideDishes(DefaultListModel<SideDish> sideDishModel) {
 		sideDishModel.clear();
-		for(SideDish dish : manager.getSideDishes()) {
+		for(SideDish dish : manager.SideDishes.getDishes()) {
 			sideDishModel.addElement(dish);
 		}
 	}
 
 	private void populateMainDishes(DefaultListModel<MainDish> mainDishModel) {
 		mainDishModel.clear();
-		for(MainDish dish : manager.getMainDishes()) {
+		for(MainDish dish : manager.MainDishes.getDishes()) {
 			mainDishModel.addElement(dish);
 		}
 	}

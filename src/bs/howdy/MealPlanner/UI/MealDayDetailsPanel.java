@@ -14,7 +14,8 @@ public class MealDayDetailsPanel extends JPanel {
 		setPreferredSize(new Dimension(200, 600));
 		setLayout(new BorderLayout());
 		_description = new JTextArea();
-		add(new JScrollPane(_description));
+		_description.setWrapStyleWord(true);
+		add(new JScrollPane(_description, JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
 		setVisible(false);
 	}
 	

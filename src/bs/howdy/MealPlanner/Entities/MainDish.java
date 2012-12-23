@@ -5,6 +5,10 @@ public class MainDish extends Dish {
 		super(id, name, description);
 	}
 
+	public MainDish(String name, String description) {
+		super(name, description);
+	}	
+	
 	@Override
 	public String xmlSerialize() {
 		return "<MainDish id=\"" + getId() + "\"><Name>" + getName() + "</Name><Description>" + getDescription() + "</Description></MainDish>";

@@ -21,40 +21,42 @@ public class DishCreateEdit extends JDialog {
 	public final static int MAIN_DISH = 1;
 	public final static int SIDE_DISH = 2;
 	
-	public DishCreateEdit(int dishType) {
-		_dishType = dishType;
-		_dishId = -1;
-		setupUI();
+	public DishCreateEdit(Frame owner, String title, int dishType) {
+		this(owner, title, dishType, null);
 	}
 	
-	public DishCreateEdit(MainDish md) {
-		_dishType = MAIN_DISH;
-		setupUI();
-		_dishId = md.getId();
-		_name.setText(md.getName());
-		_description.setText(md.getDescription());
+	public DishCreateEdit(Frame owner, String title, MainDish md) {
+		this(owner, title, MAIN_DISH, md);
 	}
 
-	public DishCreateEdit(SideDish sd) {
-		_dishType = SIDE_DISH;
+	public DishCreateEdit(Frame owner, String title, SideDish sd) {
+		this(owner, title, SIDE_DISH, sd);
+	}
+	
+	public DishCreateEdit(Frame owner, String title, int dishType, Dish dish) {
+		super(owner, title);
+		_dishType = dishType;
 		setupUI();
-		_dishId = sd.getId();
-		_name.setText(sd.getName());
-		_description.setText(sd.getDescription());
+		_dishId = -1;
+		if(dish != null) {
+			_dishId = dish.getId();
+			_name.setText(dish.getName());
+			_description.setText(dish.getDescription());
+		}
 	}
 	
 	private void setupUI() {
 		entityManager = EntityManager.Instance();
 		setLayout(new BorderLayout(10, 10));
 		
-		JPanel namePanel = new JPanel();
+		final JPanel namePanel = new JPanel();
 		namePanel.setLayout(new BorderLayout());
 		namePanel.setBorder(new TitledBorder(null, "Name", TitledBorder.LEADING, TitledBorder.TOP, null, null)); //new Font("Arial", Font.BOLD, 16)
 		_name = new JTextField();
 		namePanel.add(_name);
 		add(namePanel, BorderLayout.NORTH);
 		
-		JPanel descriptionPanel = new JPanel();
+		final JPanel descriptionPanel = new JPanel();
 		descriptionPanel.setBorder(new TitledBorder(null, "Description", TitledBorder.LEADING, TitledBorder.TOP, null, null)); //new Font("Arial", Font.BOLD, 16)
 		_description = new JTextArea(10, 40);
 		_description.setWrapStyleWord(true);
@@ -68,11 +70,11 @@ public class DishCreateEdit extends JDialog {
 			@Override
 			public void mouseClicked(MouseEvent mouseEvent) {
 				if(_name.getText().isEmpty()) {
-					((TitledBorder)_name.getBorder()).setTitleColor(Color.RED);
+					((TitledBorder)namePanel.getBorder()).setTitleColor(Color.RED);
 					return;
 				}
 				if(_description.getText().isEmpty()) {
-					_description.setForeground(Color.RED);
+					((TitledBorder)descriptionPanel.getBorder()).setTitleColor(Color.RED);
 					return;
 				}
 				if(_dishType == MAIN_DISH) {
@@ -83,6 +85,17 @@ public class DishCreateEdit extends JDialog {
 					}
 					else {
 						entityManager.MainDishes.add(new MainDish(_name.getText(), _description.getText()));
+					}
+					closeFrame();
+				}
+				if(_dishType == SIDE_DISH) {
+					if(_dishId > 0) {
+						SideDish dish = entityManager.SideDishes.get(_dishId);
+						dish.setName(_name.getText());
+						dish.setDescription(_description.getText());
+					}
+					else {
+						entityManager.SideDishes.add(new SideDish(_name.getText(), _description.getText()));
 					}
 					closeFrame();
 				}

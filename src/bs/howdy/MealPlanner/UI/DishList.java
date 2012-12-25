@@ -6,7 +6,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
-import bs.howdy.MealPlanner.Entities.Dish;
+import bs.howdy.MealPlanner.Entities.*;
 
 public class DishList<T extends Dish> extends JList<T> {
 	public DishList(ListModel<T> dishModel, String title) {
@@ -21,8 +21,14 @@ public class DishList<T extends Dish> extends JList<T> {
 					int index = locationToIndex(mouseEvent.getPoint());
 					if (index >= 0) {
 						Dish dish = getModel().getElementAt(index);
-						// Edit dish
-						JOptionPane.showMessageDialog(null, "You clicked on " + dish.getName());
+						if(dish instanceof MainDish) {
+							DishCreateEdit dce = new DishCreateEdit(null, "Edit Main Dish", (MainDish)dish);
+							dce.setVisible(true);
+						}
+						else if(dish instanceof SideDish){
+							DishCreateEdit dce = new DishCreateEdit(null, "Edit Side Dish", (SideDish)dish);
+							dce.setVisible(true);
+						}
 		          }
 		        }
 			}

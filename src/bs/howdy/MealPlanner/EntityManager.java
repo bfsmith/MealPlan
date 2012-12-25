@@ -30,6 +30,38 @@ public class EntityManager {
 	public MainDishService MainDishes;
 	public SideDishService SideDishes;
 	public MealDayService MealDays;
+
+	public void delete(MainDish dish) {
+		if(dish == null) return;
+		List<MainDish> dishes = MainDishes.getDishes();
+		int index = -1;
+		for(int i = 0; i < dishes.size(); i++) {
+			if(dishes.get(i).getId() == dish.getId()) {
+				index = i;
+				break;
+			}
+		}
+		if(index >= 0) {
+			MealDays.removeAll(dish);
+			dishes.remove(index);
+		}
+	}
+
+	public void delete(SideDish dish) {
+		if(dish == null) return;
+		List<SideDish> dishes = SideDishes.getDishes();
+		int index = -1;
+		for(int i = 0; i < dishes.size(); i++) {
+			if(dishes.get(i).getId() == dish.getId()) {
+				index = i;
+				break;
+			}
+		}
+		if(index >= 0) {
+			MealDays.removeAll(dish);
+			dishes.remove(index);
+		}
+	}
 	
 	private void populateTestData() {
 		for(int i = 0; i < 5; i++) {
@@ -42,9 +74,9 @@ public class EntityManager {
 		for(int i = 0; i < 5; i++) {
 			MealDay md = new MealDay(2012, 12, i+1);
 			md.setMainDish(MainDishes.get(((i) % MainDishes.getDishes().size())));
-			md.addSideDish(SideDishes.getSideDish(((i) % SideDishes.getDishes().size())));
-			md.addSideDish(SideDishes.getSideDish(((i+1) % SideDishes.getDishes().size())));
-			md.addSideDish(SideDishes.getSideDish(((i+2) % SideDishes.getDishes().size())));
+			md.addSideDish(SideDishes.get(((i) % SideDishes.getDishes().size())));
+			md.addSideDish(SideDishes.get(((i+1) % SideDishes.getDishes().size())));
+			md.addSideDish(SideDishes.get(((i+2) % SideDishes.getDishes().size())));
 			MealDays.addMealDay(md);
 		}
 	}
@@ -69,17 +101,6 @@ public class EntityManager {
 		public void add(MainDish dish) {
 			_mainDishes.add(dish);
 		}
-		public void delete(MainDish dish) {
-			int index = -1;
-			for(int i = 0; i < _mainDishes.size(); i++) {
-				if(_mainDishes.get(i).getId() == dish.getId()) {
-					index = i;
-					break;
-				}
-			}
-			if(index >= 0)
-				_mainDishes.remove(index);
-		}
 	}
 	
 	public class SideDishService {
@@ -88,7 +109,7 @@ public class EntityManager {
 			_sideDishes = new ArrayList<SideDish>();
 		}
 		
-		public SideDish getSideDish(int id) {
+		public SideDish get(int id) {
 			for(SideDish dish : _sideDishes) {
 				if(dish.getId() == id)
 					return dish;
@@ -101,17 +122,6 @@ public class EntityManager {
 		}
 		public void add(SideDish dish) {
 			_sideDishes.add(dish);
-		}
-		public void delete(SideDish dish) {
-			int index = -1;
-			for(int i = 0; i < _sideDishes.size(); i++) {
-				if(_sideDishes.get(i).getId() == dish.getId()) {
-					index = i;
-					break;
-				}
-			}
-			if(index >= 0)
-				_sideDishes.remove(index);
 		}
 	}
 	
@@ -131,5 +141,40 @@ public class EntityManager {
 		private String createKey(int year, int month, int day) {
 			return "" + year + month + day;
 		}
+		
+		public void removeAll(MainDish dish) {
+			for(String key : _mealDays.keySet()) {
+				MealDay md = _mealDays.get(key);
+				if(md != null) {
+					MainDish mainDish = md.getMainDish();
+					if(mainDish != null && mainDish.getId() == dish.getId()) {
+						md.setMainDish(null);
+					}
+				}
+			}
+		}
+
+		public void removeAll(SideDish dish) {
+			for(String key : _mealDays.keySet()) {
+				MealDay md = _mealDays.get(key);
+				if(md != null) {
+					List<SideDish> sideDishes = md.getSideDishes();
+					if(sideDishes != null) {
+						int index = -1;
+						for(int i = 0; i < sideDishes.size(); i++) {
+							SideDish sideDish = sideDishes.get(i);
+							if(sideDish.getId() == dish.getId()) {
+								index = i;
+								break;
+							}
+						}
+						if(index >= 0) {
+							sideDishes.remove(index);
+						}
+					}
+				}
+			}
+		}
+		
 	}
 }

@@ -31,21 +31,6 @@ public class DishTransferHandler extends TransferHandler {
                     if (component instanceof Droppable<?>) {
                         ((Droppable<Dish>)component).drop(value);
                     }
-                    else if (component instanceof JTable) {
-                    	JTable table = (JTable)component;
-                    	JTable.DropLocation dl = (JTable.DropLocation)support.getDropLocation();
-                    	CalendarPanel.MealDayContainer mdc = (CalendarPanel.MealDayContainer)table.getModel().getValueAt(dl.getRow(), dl.getColumn());
-                    	if(mdc != null) {
-                    		if(value instanceof MainDish) {
-                    			mdc.mealDay.setMainDish((MainDish)value);
-                    		}
-                    		else {
-                    			mdc.mealDay.addSideDish((SideDish)value);
-                    		}
-                    	}
-                    	
-                    	System.out.println("JTABLE " + dl.getColumn() + " , " + dl.getRow());
-                    }
                 }
             } catch (Exception exp) {
                 exp.printStackTrace();

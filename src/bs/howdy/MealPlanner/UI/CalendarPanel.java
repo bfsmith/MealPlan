@@ -43,6 +43,11 @@ public class CalendarPanel extends JPanel {
 	private JScrollPane stblCalendar; //The scrollpane
 	private int realYear, realMonth, realDay, currentYear, currentMonth;
 	private MealDayDetailsPanel _mealDayDetailsPanel;
+	
+
+	private String[] months =  {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
+
+	public String[] headers = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 
 	public CalendarPanel() {
 		manager = EntityManager.Instance();
@@ -83,7 +88,6 @@ public class CalendarPanel extends JPanel {
 		currentYear = realYear;
 		
 		//Add headers
-		String[] headers = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"}; //All headers
 		for (int i=0; i<7; i++){
 			mtblCalendar.addColumn(headers[i]);
 		}
@@ -112,9 +116,12 @@ public class CalendarPanel extends JPanel {
 		refreshCalendar (realMonth, realYear); //Refresh calendar
 	}
 	
+	public void refreshCalendar(){
+		mtblCalendar.fireTableDataChanged();
+	}
+	
 	public void refreshCalendar(int month, int year){
 		//Variables
-		String[] months =  {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
 		int nod, som; //Number Of Days, Start Of Month
 			
 		//Allow/disallow buttons
@@ -148,6 +155,21 @@ public class CalendarPanel extends JPanel {
 
 		//Apply renderer
 		tblCalendar.setDefaultRenderer(tblCalendar.getColumnClass(0), new tblCalendarRenderer());
+		
+		tblCalendar.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent mouseEvent) {
+				int column = tblCalendar.getColumnModel().getColumnIndexAtX(mouseEvent.getX());
+				int row    = mouseEvent.getY()/tblCalendar.getRowHeight(); 
+	
+				if (row < tblCalendar.getRowCount() && row >= 0 && column < tblCalendar.getColumnCount() && column >= 0) {
+				    Object value = tblCalendar.getValueAt(row, column);
+				    if (value instanceof JButton) {
+				    	((JButton)value).doClick();
+				    }
+				}
+			}
+		});
 	}
 	
 	class MealDayContainer {

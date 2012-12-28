@@ -1,250 +1,202 @@
 package bs.howdy.MealPlanner.UI;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
-import java.awt.Label;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.*;
+import java.awt.event.*;
 import java.util.GregorianCalendar;
 
-import javax.swing.BorderFactory;
-import javax.swing.DropMode;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.*;
 
 import bs.howdy.MealPlanner.EntityManager;
-import bs.howdy.MealPlanner.Entities.MainDish;
 import bs.howdy.MealPlanner.Entities.MealDay;
-import bs.howdy.MealPlanner.Entities.SideDish;
-
 
 public class CalendarPanel extends JPanel {
-	
-	private EntityManager manager;
-	private JLabel lblMonth;
-	private JButton btnPrev, btnNext;
-	private JTable tblCalendar;
-	private DefaultTableModel mtblCalendar; //Table model
-	private JScrollPane stblCalendar; //The scrollpane
-	private int realYear, realMonth, realDay, currentYear, currentMonth;
+	private EntityManager _manager;
+	private JLabel _monthName;
+	private JButton _prev;
+	private JButton _next;
+	private JPanel _calendarPanel;
+	private int _year;
+	private int _month;
+	private String[] daysOfWeek = { "Sun", "Mon", "Tues", "Wed", "Thur", "Fri", "Sat" };
+	private String[] monthsOfYear = { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
+	private int _selectedDay = -1;
+	private MealDayPanel _selectedPanel = null;
+	private int _currentDay;
+	private int _currentMonth;
+	private int _currentYear;
 	private MealDayDetailsPanel _mealDayDetailsPanel;
 	
-
-	private String[] months =  {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
-
-	public String[] headers = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
-
-	public CalendarPanel() {
-		manager = EntityManager.Instance();
+	public CalendarPanel(EntityManager manager) {
+		super();
+		_manager = manager;
+		GregorianCalendar cal = new GregorianCalendar();
+		_currentDay = cal.get(GregorianCalendar.DAY_OF_MONTH);
+		_currentMonth = cal.get(GregorianCalendar.MONTH);
+		_currentYear = cal.get(GregorianCalendar.YEAR);
 		
-		setLayout(new BorderLayout(0, 0));
-		//setLayout(null);
-		//Create controls
-		lblMonth = new JLabel ();
-		lblMonth.setHorizontalAlignment(JLabel.CENTER);
-		btnPrev = new JButton ("<<");
-		btnNext = new JButton (">>");
-		mtblCalendar = new DefaultTableModel(){public boolean isCellEditable(int rowIndex, int mColIndex){return false;}};
-		tblCalendar = new JTable(mtblCalendar);
-		stblCalendar = new JScrollPane(tblCalendar);
-		
-		//Register action listeners
-		btnPrev.addActionListener(new btnPrev_Action());
-		btnNext.addActionListener(new btnNext_Action());
+		setLayout(new BorderLayout());
 		
 		JPanel northPanel = new JPanel();
-		northPanel.setLayout(new BorderLayout(4, 0));
-		northPanel.add(btnPrev, BorderLayout.WEST);
-		northPanel.add(btnNext, BorderLayout.EAST);
-		northPanel.add(lblMonth, BorderLayout.CENTER);
+		northPanel.setLayout(new BorderLayout());
+		_monthName = new JLabel();
+		_monthName.setHorizontalAlignment(JLabel.CENTER);
+		_monthName.setHorizontalTextPosition(JLabel.CENTER);
+		northPanel.add(_monthName);
+		_prev = new JButton("<<");
+		northPanel.add(_prev, BorderLayout.WEST);
+		_prev.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if(_month == 0)
+					_year--;
+				_month = (_month - 1);
+				if(_month < 0)
+					_month += 12;
+				setMonth(_year, _month);
+			}
+		});
+		_next = new JButton(">>");
+		northPanel.add(_next, BorderLayout.EAST);
+		_next.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if(_month == 11)
+					_year++;
+				_month = (_month + 1);
+				if(_month >= 12)
+					_month -= 12;
+				setMonth(_year, _month);
+			}
+		});
 		add(northPanel, BorderLayout.NORTH);
 		
-		add(stblCalendar);
+		JPanel centralPanel = new JPanel();
+		centralPanel.setLayout(new BorderLayout());
+		JPanel dayHeaders = new JPanel();
+		dayHeaders.setLayout(new GridLayout(1,7));
+		for(String day : daysOfWeek) {
+			JLabel dayLbl = new JLabel(day, JLabel.CENTER);
+			dayLbl.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+			dayHeaders.add(dayLbl);
+		}
+		centralPanel.add(dayHeaders, BorderLayout.NORTH);
+		_calendarPanel = new JPanel();
+		_calendarPanel.setLayout(new GridLayout(0, 7, 0, 0));
+		centralPanel.add(_calendarPanel);
+		add(centralPanel);
 
 		_mealDayDetailsPanel = new MealDayDetailsPanel();
 		add(_mealDayDetailsPanel, BorderLayout.EAST);
 		
-		//Get real month/year
-		GregorianCalendar cal = new GregorianCalendar(); //Create calendar
-		realDay = cal.get(GregorianCalendar.DAY_OF_MONTH); //Get day
-		realMonth = cal.get(GregorianCalendar.MONTH); //Get month
-		realYear = cal.get(GregorianCalendar.YEAR); //Get year
-		currentMonth = realMonth; //Match month and year
-		currentYear = realYear;
-		
-		//Add headers
-		for (int i=0; i<7; i++){
-			mtblCalendar.addColumn(headers[i]);
-		}
-		
-		tblCalendar.getParent().setBackground(tblCalendar.getBackground()); //Set background
-
-		//No resize/reorder
-		tblCalendar.getTableHeader().setResizingAllowed(false);
-		tblCalendar.getTableHeader().setReorderingAllowed(false);
-
-		//Single cell selection
-		tblCalendar.setColumnSelectionAllowed(true);
-		tblCalendar.setRowSelectionAllowed(true);
-		tblCalendar.setCellSelectionEnabled(true);
-		tblCalendar.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-		//Set row/column count
-		tblCalendar.setRowHeight(100);
-		mtblCalendar.setColumnCount(7);
-		mtblCalendar.setRowCount(6);
-		
-		tblCalendar.setDropMode(DropMode.ON);
-		tblCalendar.setTransferHandler(new DishTransferHandler());
-		
-		//Refresh calendar
-		refreshCalendar (realMonth, realYear); //Refresh calendar
+		setMonth(_currentYear, _currentMonth);
 	}
 	
-	public void refreshCalendar(){
-		mtblCalendar.fireTableDataChanged();
+	public void refreshCalendar() {
+		setMonth(_year, _month);
 	}
 	
-	public void refreshCalendar(int month, int year){
-		//Variables
-		int nod, som; //Number Of Days, Start Of Month
+	private void setMonth(int year, int month) {
+		_calendarPanel.removeAll();
+		_year = year;
+		_month = month;
+		GregorianCalendar cal = new GregorianCalendar(year, month, 1);
+		cal.setFirstDayOfWeek(GregorianCalendar.SUNDAY);
+		int numberOfDays = cal.getActualMaximum(GregorianCalendar.DAY_OF_MONTH);
+		int startDay = cal.get(GregorianCalendar.DAY_OF_WEEK) - 1 % 7;
+		int monthOfYear = cal.get(GregorianCalendar.MONTH);
+		_monthName.setText(monthsOfYear[monthOfYear] + " " + year);
+		
+		if(startDay > 0) {
+			GregorianCalendar previousMonth = getPreviousMonth(year, month);
+			int maxDays = previousMonth.getActualMaximum(GregorianCalendar.DAY_OF_MONTH);
 			
-		//Allow/disallow buttons
-		btnPrev.setEnabled(true);
-		btnNext.setEnabled(true);
-		if (month == 0 && year <= realYear-10){btnPrev.setEnabled(false);} //Too early
-		if (month == 11 && year >= realYear+100){btnNext.setEnabled(false);} //Too late
-		lblMonth.setText(months[month] + " " + year); //Refresh the month label (at the top)
-		
-		//Clear table
-		for (int i=0; i<6; i++){
-			for (int j=0; j<7; j++){
-				mtblCalendar.setValueAt(null, i, j);
+			for(int i = maxDays - startDay + 1; i <= maxDays; i++) {
+				JPanel jp = dayPanel(previousMonth.get(GregorianCalendar.YEAR), previousMonth.get(GregorianCalendar.MONTH), i);
+				_calendarPanel.add(jp);
 			}
 		}
-		
-		//Get first day of month and number of days
-		GregorianCalendar cal = new GregorianCalendar(year, month, 1);
-		nod = cal.getActualMaximum(GregorianCalendar.DAY_OF_MONTH);
-		som = cal.get(GregorianCalendar.DAY_OF_WEEK);
-		
-		//Draw calendar
-		for (int i=1; i<=nod; i++){
-			int row = new Integer((i+som-2)/7);
-			int column  =  (i+som-2)%7;
-			MealDay md = manager.MealDays.getMealDay(year, month+1, i);
-			if(md == null)
-				md = new MealDay(year, month+1, i);
-			mtblCalendar.setValueAt(new MealDayContainer(year, month, i, md), row, column);
+		for(int i = 1; i <= numberOfDays; i++) {
+			_calendarPanel.add(dayPanel(year, month, i));
 		}
+		if((startDay + numberOfDays) % 7 > 0) {
+			GregorianCalendar previousMonth = getPreviousMonth(year, month);
+			int maxDays = previousMonth.getActualMaximum(GregorianCalendar.DAY_OF_MONTH);
+			
+			for(int i = 1; i <= 7-(startDay + numberOfDays) % 7; i++) {
+				JPanel jp = dayPanel(previousMonth.get(GregorianCalendar.YEAR), previousMonth.get(GregorianCalendar.MONTH), i);
+				_calendarPanel.add(jp);
+			}
+		}
+	}
+	
+	private GregorianCalendar getPreviousMonth(int year, int month) {
+		if(month == 0) {
+			year--;
+			month = 11;
+		} else { month--; }
+		return new GregorianCalendar(year, month, 1);
+	}
 
-		//Apply renderer
-		tblCalendar.setDefaultRenderer(tblCalendar.getColumnClass(0), new tblCalendarRenderer());
-		
-		tblCalendar.addMouseListener(new MouseAdapter() {
+	private GregorianCalendar getNextMonth(int year, int month) {
+		if(month == 11) {
+			year++;
+			month = 0;
+		} else { month++; }
+		return new GregorianCalendar(year, month, 1);
+	}
+	
+	private JPanel emptyPanel() {
+		JPanel panel = new JPanel();
+		panel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent mouseEvent) {
-				int column = tblCalendar.getColumnModel().getColumnIndexAtX(mouseEvent.getX());
-				int row    = mouseEvent.getY()/tblCalendar.getRowHeight(); 
-	
-				if (row < tblCalendar.getRowCount() && row >= 0 && column < tblCalendar.getColumnCount() && column >= 0) {
-				    Object value = tblCalendar.getValueAt(row, column);
-				    if (value instanceof JButton) {
-				    	((JButton)value).doClick();
-				    }
-				}
+				setSelected(null);
 			}
 		});
+		return panel;
 	}
 	
-	class MealDayContainer {
-		public MealDayContainer(int year, int month, int day, MealDay md) {
-			this.day = day;
-			this.month = month;
-			this.year = year;
-			mealDay = md;
+	private MealDayPanel dayPanel(final int year, final int month, final int day) {
+		GregorianCalendar cal = new GregorianCalendar(year, month, day);
+		
+		Color background = _manager.ColorPreferences.defaultDayBackground;
+		if(day == _currentDay && month == _currentMonth && year == _currentYear)
+			background = _manager.ColorPreferences.todayBackground;
+		else if(cal.get(GregorianCalendar.MONTH) != _month) {
+			background = _manager.ColorPreferences.nonSelectedMonthBackground;
+		}
+		else if (cal.get(GregorianCalendar.DAY_OF_WEEK) == GregorianCalendar.SUNDAY || cal.get(GregorianCalendar.DAY_OF_WEEK) == GregorianCalendar.SATURDAY){
+			background = _manager.ColorPreferences.weekendBackground;
+		}
+
+		MealDay md = _manager.MealDays.getMealDay(year, month+1, day);
+		if(md == null) {
+			md = new MealDay(year, month+1, day, _manager);
+			_manager.MealDays.addMealDay(md);
 		}
 		
-		public int day;
-		public int month;
-		public int year;
-		public MealDay mealDay;
-	}
-
-	class tblCalendarRenderer extends DefaultTableCellRenderer{
-		
-		public Component getTableCellRendererComponent (JTable table, Object value, boolean selected, boolean focused, int row, int column){
-			super.getTableCellRendererComponent(table, value, selected, focused, row, column);
-
-			final MealDayContainer mdc = (MealDayContainer)value;
-			Color background = new Color(255, 255, 255);
-			if(mdc != null && mdc.day == realDay && mdc.month == realMonth && mdc.year == realYear)
-				background = new Color(220, 220, 255);
-			else if (column == 0 || column == 6){ //Week-end
-				background = new Color(255, 220, 220);
+		final MealDayPanel panel = new MealDayPanel(md, day, background, _manager);
+		panel.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent mouseEvent) {
+				setSelected(panel);
 			}
-
-			JPanel p;// = mdc != null ? new MealDayPanel(mdc.mealDay, mdc.day, background) : new JPanel();
-			if(mdc != null) {
-				MealDayPanel mdp = new MealDayPanel(mdc.mealDay, mdc.day, background);
-				if(selected) {
-					mdp.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
-	                _mealDayDetailsPanel.setMealDay(mdc.mealDay);
-				}
-				else {
-					mdp.setBorder(BorderFactory.createLineBorder(mdp.getBackground()));
-				}
-				p = mdp;
-			}
-			else {
-				if(selected)
-					_mealDayDetailsPanel.setMealDay(null);
-				p = new JPanel();
-			}
+		});
+		return panel;
+	};
+	
+	private void setSelected(MealDayPanel panel) {
+		if(_selectedPanel != null) {
+			_selectedPanel.deselect();
+		}
+		if(panel != null) {
+			panel.select();
+			_selectedPanel = panel;
+            _mealDayDetailsPanel.setMealDay(panel.getMealDay());
+		}
+		else {
+			_mealDayDetailsPanel.setMealDay(null);
+		}
 			
-			p.setForeground(Color.black);
-			p.setBackground(background);
-			return p;  
-		}
-	}
-
-	class btnPrev_Action implements ActionListener{
-		public void actionPerformed (ActionEvent e){
-			if (currentMonth == 0){ //Back one year
-				currentMonth = 11;
-				currentYear -= 1;
-			}
-			else{ //Back one month
-				currentMonth -= 1;
-			}
-			refreshCalendar(currentMonth, currentYear);
-		}
-	}
-	class btnNext_Action implements ActionListener{
-		public void actionPerformed (ActionEvent e){
-			if (currentMonth == 11){ //Foward one year
-				currentMonth = 0;
-				currentYear += 1;
-			}
-			else{ //Foward one month
-				currentMonth += 1;
-			}
-			refreshCalendar(currentMonth, currentYear);
-		}
 	}
 }

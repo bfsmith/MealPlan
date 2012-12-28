@@ -3,10 +3,16 @@ package bs.howdy.MealPlanner.Entities;
 import java.util.ArrayList;
 import java.util.List;
 
+import bs.howdy.MealPlanner.EntityManager;
+
 public class MealDay {
-	public MealDay(int year, int month, int day)
+	private EntityManager _manager;
+	
+	public MealDay(int year, int month, int day, EntityManager manager)
 	{
-		_sideDishes = new ArrayList<SideDish>();
+		_manager = manager;
+		_mainDishId = -1;
+		_sideDishIds = new ArrayList<Integer>();
 		_year = year;
 		_month = month;
 		_day = day;
@@ -26,35 +32,42 @@ public class MealDay {
 		return _day;
 	}
 
-	private MainDish _mainDish;	
+	private int _mainDishId;	
 	public MainDish getMainDish() {
-		return _mainDish;
+		return _manager.MainDishes.get(_mainDishId);
 	}
 	public void setMainDish(MainDish mainDish) {
-		_mainDish = mainDish;
+		if(mainDish != null)
+			_mainDishId = mainDish.getId();
+		else
+			_mainDishId = -1;
 	}
 	
-	private List<SideDish> _sideDishes;
+	private List<Integer> _sideDishIds;
 	public List<SideDish> getSideDishes() {
-		return _sideDishes;
+		ArrayList<SideDish> dishes = new ArrayList<SideDish>();
+		for(Integer id : _sideDishIds) {
+			dishes.add(_manager.SideDishes.get(id));
+		}
+		return dishes;
 	}
 	public void addSideDish(SideDish sideDish) {
-		for(SideDish sd : _sideDishes) {
-			if(sd.getId() == sideDish.getId())
+		for(Integer sd : _sideDishIds) {
+			if(sd == sideDish.getId())
 				return;
 		}
-		_sideDishes.add(sideDish);
+		_sideDishIds.add(sideDish.getId());
 	}
 	public void removeSideDish(SideDish sideDish) {
 		int index = -1;
-		for(int i = 0; i < _sideDishes.size(); i++) {
-			if(_sideDishes.get(i).getId() == sideDish.getId())
+		for(int i = 0; i < _sideDishIds.size(); i++) {
+			if(_sideDishIds.get(i) == sideDish.getId())
 			{
 				index = i;
 				break;
 			}
 		}
 		if(index >= 0)
-			_sideDishes.remove(index);
+			_sideDishIds.remove(index);
 	}
 }

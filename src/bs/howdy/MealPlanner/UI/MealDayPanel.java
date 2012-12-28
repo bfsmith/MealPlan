@@ -15,8 +15,8 @@ public class MealDayPanel extends JPanel implements Droppable<Dish> {
 	private Color _background;
 	private int _dayOfMonth;
 	
-	public MealDayPanel(MealDay md, int dayOfMonth, Color background) {
-		_manager = EntityManager.Instance();
+	public MealDayPanel(MealDay md, int dayOfMonth, Color background, EntityManager manager) {
+		_manager = manager;
 		_md = md;
 		_background = background;
 		_dayOfMonth = dayOfMonth;
@@ -31,6 +31,7 @@ public class MealDayPanel extends JPanel implements Droppable<Dish> {
 		else if(d instanceof SideDish) {
 			_md.addSideDish((SideDish)d);
 		}
+		_manager.MealDays.addMealDay(_md);
 		revalidate();
 		setupPanel();
 	}
@@ -44,11 +45,11 @@ public class MealDayPanel extends JPanel implements Droppable<Dish> {
 	}
 	
 	public void select() {
-		setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
+		setBorder(BorderFactory.createLineBorder(_manager.ColorPreferences.selectedDayBorder));
 		repaint();
 	}
 	public void deselect() {
-		setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+		setBorder(BorderFactory.createLineBorder(_manager.ColorPreferences.defaultDayBorder));
 		repaint();
 	}
 	
@@ -60,16 +61,16 @@ public class MealDayPanel extends JPanel implements Droppable<Dish> {
 		
 		final JPanel meals = new JPanel();
 		meals.setBackground(getBackground());
-		setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+		setBorder(BorderFactory.createLineBorder(_manager.ColorPreferences.defaultDayBorder));
 		meals.setLayout(new GridLayout(4,1,2,2));
-		
+
 		MainDish mainDish = _md.getMainDish();
 		if(mainDish != null) {
 			final JPanel jp = new JPanel();
 			jp.setLayout(new BorderLayout());
 			JLabel mdp = new JLabel(mainDish.getName());
-			jp.setBackground(new Color(132, 199, 255));
-			jp.setBorder(BorderFactory.createLineBorder(Color.BLUE));
+			jp.setBackground(_manager.ColorPreferences.MainDishBackground);
+			jp.setBorder(BorderFactory.createLineBorder(_manager.ColorPreferences.MainDishBorder));
 			jp.add(mdp);
 			
 			JLabel removeBtn = new JLabel("X");
@@ -90,8 +91,8 @@ public class MealDayPanel extends JPanel implements Droppable<Dish> {
 			final JPanel jp = new JPanel();
 			jp.setLayout(new BorderLayout());
 			JLabel sdp = new JLabel(sideDish.getName());
-			jp.setBackground(new Color(230, 200, 255));
-			jp.setBorder(BorderFactory.createLineBorder(new Color(150, 100, 255)));
+			jp.setBackground(_manager.ColorPreferences.SideDishBackground);
+			jp.setBorder(BorderFactory.createLineBorder(_manager.ColorPreferences.SideDishBorder));
 			jp.add(sdp);
 			
 			JLabel removeBtn = new JLabel("X");

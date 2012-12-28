@@ -17,25 +17,26 @@ public class DishCreateEdit extends JDialog {
 	private JTextField _name;
 	private JTextArea _description;
 	private int _dishType;
-	private EntityManager entityManager;
+	private EntityManager _manager;
 	public final static int MAIN_DISH = 1;
 	public final static int SIDE_DISH = 2;
 	
-	public DishCreateEdit(Frame owner, String title, int dishType) {
-		this(owner, title, dishType, null);
+	public DishCreateEdit(Frame owner, String title, int dishType, EntityManager manager) {
+		this(owner, title, dishType, null, manager);
 	}
 	
-	public DishCreateEdit(Frame owner, String title, MainDish md) {
-		this(owner, title, MAIN_DISH, md);
+	public DishCreateEdit(Frame owner, String title, MainDish md, EntityManager manager) {
+		this(owner, title, MAIN_DISH, md, manager);
 	}
 
-	public DishCreateEdit(Frame owner, String title, SideDish sd) {
-		this(owner, title, SIDE_DISH, sd);
+	public DishCreateEdit(Frame owner, String title, SideDish sd, EntityManager manager) {
+		this(owner, title, SIDE_DISH, sd, manager);
 	}
 	
-	public DishCreateEdit(Frame owner, String title, int dishType, Dish dish) {
+	public DishCreateEdit(Frame owner, String title, int dishType, Dish dish, EntityManager manager) {
 		super(owner, title);
 		_dishType = dishType;
+		_manager = manager;
 		setupUI();
 		_dishId = -1;
 		if(dish != null) {
@@ -46,7 +47,6 @@ public class DishCreateEdit extends JDialog {
 	}
 	
 	private void setupUI() {
-		entityManager = EntityManager.Instance();
 		setLayout(new BorderLayout(10, 10));
 		
 		final JPanel namePanel = new JPanel();
@@ -79,23 +79,23 @@ public class DishCreateEdit extends JDialog {
 				}
 				if(_dishType == MAIN_DISH) {
 					if(_dishId > 0) {
-						MainDish dish = entityManager.MainDishes.get(_dishId);
+						MainDish dish = _manager.MainDishes.get(_dishId);
 						dish.setName(_name.getText());
 						dish.setDescription(_description.getText());
 					}
 					else {
-						entityManager.MainDishes.add(new MainDish(_name.getText(), _description.getText()));
+						_manager.MainDishes.add(new MainDish(_name.getText(), _description.getText()));
 					}
 					closeFrame();
 				}
 				if(_dishType == SIDE_DISH) {
 					if(_dishId > 0) {
-						SideDish dish = entityManager.SideDishes.get(_dishId);
+						SideDish dish = _manager.SideDishes.get(_dishId);
 						dish.setName(_name.getText());
 						dish.setDescription(_description.getText());
 					}
 					else {
-						entityManager.SideDishes.add(new SideDish(_name.getText(), _description.getText()));
+						_manager.SideDishes.add(new SideDish(_name.getText(), _description.getText()));
 					}
 					closeFrame();
 				}

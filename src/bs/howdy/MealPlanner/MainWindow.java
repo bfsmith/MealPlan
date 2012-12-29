@@ -50,7 +50,7 @@ public class MainWindow {
 		_colorChooser = new JColorChooser();
 		_colorChooser.setPreviewPanel(new JPanel());
 		
-		manager.populateTestData();
+//		manager.populateTestData();
 		
 		_frmMealPlanner = new JFrame();
 		BorderLayout borderLayout = (BorderLayout) _frmMealPlanner.getContentPane().getLayout();

@@ -15,8 +15,7 @@ import bs.howdy.MealPlanner.Entities.SideDish;
 public class DishTransferHandler extends TransferHandler {
 	@Override
     public boolean canImport(TransferSupport support) {
-		return true;
-        //return (support.getComponent() instanceof Droppable<?>) && support.isDataFlavorSupported(TransferableDish.DATA_FLAVOR);
+        return (support.getComponent() instanceof Droppable<?>) && support.isDataFlavorSupported(TransferableDish.DATA_FLAVOR);
     }
 
     @Override
@@ -60,18 +59,13 @@ public class DishTransferHandler extends TransferHandler {
 
     @Override
     protected void exportDone(JComponent source, Transferable data, int action) {
-        System.out.println("ExportDone");
         if(data instanceof TransferableDish) {
         	try {
 				Dish dish = (Dish)data.getTransferData(TransferableDish.DATA_FLAVOR);
-				if(dish != null) {
-					System.out.println("Tranfered " + dish.getName());					
+				if(dish != null) {			
 				}
 			} catch (Exception e) {
-			
 			}
         }
-        // Here you need to decide how to handle the completion of the transfer,
-        // should you remove the item from the list or not...
     }
 }

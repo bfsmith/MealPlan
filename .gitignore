@@ -1,6 +1,9 @@
 *.class
+.*
+!refs/*.jar
 
 # Package Files #
-*.jar
+#*.jar
 *.war
 *.ear
+data1.dat

@@ -8,20 +8,31 @@ import bs.howdy.MealPlanner.EntityManager;
 public class MealDay {
 	private EntityManager _manager;
 	
-	public MealDay(int year, int month, int day, EntityManager manager)
+	public MealDay(int year, int month, int day, EntityManager manager) {
+		this(-1, year, month, day, manager);
+	}
+	public MealDay(int id, int year, int month, int day, EntityManager manager)
 	{
 		_manager = manager;
 		_mainDishId = -1;
 		_sideDishIds = new ArrayList<Integer>();
+		_id = id;
 		_year = year;
 		_month = month;
 		_day = day;
 	}
 	
+	private int _id;
 	private int _year;
 	private int _month;
 	private int _day;
-	
+
+	public int getId() {
+		return _id;
+	}
+	public void setId(int id) {
+		_id = id;
+	}
 	public int getYear() {
 		return _year;
 	}

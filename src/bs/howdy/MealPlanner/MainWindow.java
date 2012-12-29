@@ -10,6 +10,7 @@ import bs.howdy.MealPlanner.EntityManager.ColorPreferences;
 import bs.howdy.MealPlanner.Entities.*;
 import bs.howdy.MealPlanner.UI.*;
 import java.awt.event.*;
+import java.io.*;
 
 public class MainWindow {
 	private DataService _dataService;
@@ -45,8 +46,9 @@ public class MainWindow {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		_dataService = new DataService();
-		manager = _dataService.Import();
+//		_dataService = new DataService();
+//		manager = _dataService.Import();
+		manager = new EntityManager();
 		_colorChooser = new JColorChooser();
 		_colorChooser.setPreviewPanel(new JPanel());
 		
@@ -62,7 +64,7 @@ public class MainWindow {
 		_frmMealPlanner.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent arg0) {
-				_dataService.Export(manager);
+//				_dataService.Export(manager);
 			}
 		});
 

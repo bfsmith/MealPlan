@@ -3,5 +3,10 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="C:/Users/Blake/Documents/GitHub/MealPlan/refs/xstream-1.4.3.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Blake/Documents/GitHub/MealPlan/refs/sqlite-jdbc-3.7.2.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/C:/Users/Blake/Documents/GitHub/MealPlan/refs/sqlite-jdbc-3.7.2-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

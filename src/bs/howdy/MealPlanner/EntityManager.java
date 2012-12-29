@@ -17,43 +17,49 @@ public class EntityManager {
 		SideDishes = new SideDishService();
 		MealDays = new MealDayService();
 		ColorPreferences = new ColorPreferences();
+		db = new Database(this);
 	}
 	
 	public MainDishService MainDishes;
 	public SideDishService SideDishes;
 	public MealDayService MealDays;
 	public ColorPreferences ColorPreferences;
+	private Database db;
 
 	public void delete(MainDish dish) {
-		if(dish == null) return;
-		List<MainDish> dishes = MainDishes.getDishes();
-		int index = -1;
-		for(int i = 0; i < dishes.size(); i++) {
-			if(dishes.get(i).getId() == dish.getId()) {
-				index = i;
-				break;
-			}
-		}
-		if(index >= 0) {
-			MealDays.removeAll(dish);
-			dishes.remove(index);
-		}
+		MealDays.removeAll(dish);
+		db.deleteMainDish(dish);
+//		if(dish == null) return;
+//		List<MainDish> dishes = MainDishes.getDishes();
+//		int index = -1;
+//		for(int i = 0; i < dishes.size(); i++) {
+//			if(dishes.get(i).getId() == dish.getId()) {
+//				index = i;
+//				break;
+//			}
+//		}
+//		if(index >= 0) {
+//			MealDays.removeAll(dish);
+//			dishes.remove(index);
+//		}
 	}
 
 	public void delete(SideDish dish) {
-		if(dish == null) return;
-		List<SideDish> dishes = SideDishes.getDishes();
-		int index = -1;
-		for(int i = 0; i < dishes.size(); i++) {
-			if(dishes.get(i).getId() == dish.getId()) {
-				index = i;
-				break;
-			}
-		}
-		if(index >= 0) {
-			MealDays.removeAll(dish);
-			dishes.remove(index);
-		}
+		MealDays.removeAll(dish);
+		db.deleteSideDish(dish);
+//		if(dish == null) return;
+//		List<SideDish> dishes = SideDishes.getDishes();
+//		int index = -1;
+//		for(int i = 0; i < dishes.size(); i++) {
+//			if(dishes.get(i).getId() == dish.getId()) {
+//				index = i;
+//				break;
+//			}
+//		}
+//		if(index >= 0) {
+//			MealDays.removeAll(dish);
+//			dishes.remove(index);
+//		}
 	}
 	
 	public void populateTestData() {
@@ -63,13 +69,14 @@ public class EntityManager {
 		for(int i = 0; i < 5; i++) {
 			SideDishes.add(new SideDish("Side Dish " + i, "Description " + i));
 		}
+		List<SideDish> sds = SideDishes.getDishes();
 		
 		for(int i = 0; i <= 5; i++) {
 			MealDay md = new MealDay(2012, 12, i+1, this);
-			md.setMainDish(MainDishes.get(((i) % MainDishes.getDishes().size())+1));
-			md.addSideDish(SideDishes.get(((i) % SideDishes.getDishes().size())+1));
-			md.addSideDish(SideDishes.get(((i+1) % SideDishes.getDishes().size())+1));
-			md.addSideDish(SideDishes.get(((i+2) % SideDishes.getDishes().size())+1));
+			md.setMainDish(MainDishes.get(((i) % MainDishes.getDishes().size())));
+			md.addSideDish(sds.get(i % sds.size()));
+			md.addSideDish(sds.get((i+1) % sds.size()));
+			md.addSideDish(sds.get((i+2) % sds.size()));
 			MealDays.addMealDay(md);
 		}
 	}
@@ -83,20 +90,23 @@ public class EntityManager {
 		}
 		
 		public MainDish get(int id) {
-			for(MainDish dish : _mainDishes) {
-				if(dish.getId() == id)
-					return dish;
-			}
-			return null;
+			return db.getMainDish(id);
+//			for(MainDish dish : _mainDishes) {
+//				if(dish.getId() == id)
+//					return dish;
+//			}
+//			return null;
 		}
 		public List<MainDish> getDishes()
 		{
-			return _mainDishes;
+			return db.getMainDishes();
+//			return _mainDishes;
 		}
 		public void add(MainDish dish) {
-			if(dish.getId() < 0)
-				dish.setId(_maxId++);
-			_mainDishes.add(dish);
+			db.addMainDish(dish);
+//			if(dish.getId() < 0)
+//				dish.setId(_maxId++);
+//			_mainDishes.add(dish);
 		}
 	}
 	
@@ -109,20 +119,23 @@ public class EntityManager {
 		}
 		
 		public SideDish get(int id) {
-			for(SideDish dish : _sideDishes) {
-				if(dish.getId() == id)
-					return dish;
-			}
-			return null;
+			return db.getSideDish(id);
+//			for(SideDish dish : _sideDishes) {
+//				if(dish.getId() == id)
+//					return dish;
+//			}
+//			return null;
 		}
 		public List<SideDish> getDishes()
 		{
-			return _sideDishes;
+			return db.getSideDishes();
+//			return _sideDishes;
 		}
 		public void add(SideDish dish) {
-			if(dish.getId() < 0)
-				dish.setId(_maxId++);
-			_sideDishes.add(dish);
+			db.addSideDish(dish);
+//			if(dish.getId() < 0)
+//				dish.setId(_maxId++);
+//			_sideDishes.add(dish);
 		}
 	}
 	
@@ -133,15 +146,17 @@ public class EntityManager {
 			_mealDays = new HashMap<String, MealDay>();
 		}
 		
-		public List<MealDay> getMealDays() {
-			return new ArrayList<MealDay>(_mealDays.values());
-		}
+//		public List<MealDay> getMealDays() {
+//			return new ArrayList<MealDay>(_mealDays.values());
+//		}
 		
 		public MealDay getMealDay(int year, int month, int day) {
-			return _mealDays.get(createKey(year, month, day));
+			return db.getMealDay(year, month, day);
+//			return _mealDays.get(createKey(year, month, day));
 		}
 		public void addMealDay(MealDay mealDay) {
-			_mealDays.put(createKey(mealDay.getYear(), mealDay.getMonth(), mealDay.getDay()), mealDay);
+			db.addMealDay(mealDay);
+//			_mealDays.put(createKey(mealDay.getYear(), mealDay.getMonth(), mealDay.getDay()), mealDay);
 		}
 		
 		private String createKey(int year, int month, int day) {

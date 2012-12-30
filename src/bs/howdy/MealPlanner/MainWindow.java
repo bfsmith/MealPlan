@@ -11,7 +11,7 @@ import bs.howdy.MealPlanner.UI.*;
 
 import java.awt.event.*;
 
-public class MainWindow {
+public class MainWindow extends JFrame {
 	private JFrame _frmMealPlanner;
 	private EntityManager manager;
 	private JList<MainDish> mainDishes;
@@ -20,16 +20,8 @@ public class MainWindow {
 	private JColorChooser _colorChooser;
 
 	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					MainWindow window = new MainWindow();
-					window._frmMealPlanner.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
+		MainWindow window = new MainWindow();
+		window.setVisible(true);
 	}
 
 	/**
@@ -48,23 +40,23 @@ public class MainWindow {
 		_colorChooser.setPreviewPanel(new JPanel());
 		
 		_frmMealPlanner = new JFrame();
-		BorderLayout borderLayout = (BorderLayout) _frmMealPlanner.getContentPane().getLayout();
+		BorderLayout borderLayout = (BorderLayout) getContentPane().getLayout();
 		borderLayout.setVgap(2);
 		borderLayout.setHgap(2);
-		_frmMealPlanner.setTitle("Meal Planner");
-		_frmMealPlanner.setBounds(100, 100, 1100, 688);
-		_frmMealPlanner.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setTitle("Meal Planner");
+		setBounds(100, 100, 1100, 688);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		calendarPanel = new CalendarPanel(manager);
-		_frmMealPlanner.getContentPane().add(calendarPanel, BorderLayout.CENTER);
+		getContentPane().add(calendarPanel, BorderLayout.CENTER);
 		
 		JMenuBar mb = buildMenuBar();
-        _frmMealPlanner.setJMenuBar(mb);
+        setJMenuBar(mb);
 		
 		JPanel leftSidePanel = new JPanel();
 		leftSidePanel.setPreferredSize(new Dimension(200, 600));
 		leftSidePanel.setLayout(new GridLayout(2, 1, 0, 0));
-		_frmMealPlanner.getContentPane().add(leftSidePanel, BorderLayout.WEST);
+		getContentPane().add(leftSidePanel, BorderLayout.WEST);
 		
 		JPanel mainDishPanel = new JPanel();
 		mainDishPanel.setLayout(new BorderLayout());

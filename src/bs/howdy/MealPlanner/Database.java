@@ -335,8 +335,9 @@ public class Database {
 		try {
 			ps = getStatement(db, "SELECT * FROM mealDay WHERE year = ? AND month = ? AND day = ?;", new Object[] { year, month, day });
 			ResultSet rs = ps.executeQuery();
+			ensureIsClosed(ps);
 			if(rs.next()) {
-				return populateMealDay(rs);
+				return populateMealDay(rs, db);
 			}
 			MealDay md = new MealDay(year, month, day, _manager);
 			addMealDay(md);
@@ -350,7 +351,7 @@ public class Database {
 		}
 		return null;
 	}
-	private MealDay populateMealDay(ResultSet rs) {
+	private MealDay populateMealDay(ResultSet rs, Connection db) {
 		MealDay md = null;
 		try {
 			int id = rs.getInt("id");
@@ -363,7 +364,6 @@ public class Database {
 		}
 		if(md == null)
 			return null;
-		Connection db = getReadOnlyConnection();
 		PreparedStatement ps = null;
 		// Get main dish
 		try {
@@ -390,7 +390,6 @@ public class Database {
 		}
 		finally {
 			ensureIsClosed(ps);
-			ensureIsClosed(db);
 		}
 		return md;
 	}

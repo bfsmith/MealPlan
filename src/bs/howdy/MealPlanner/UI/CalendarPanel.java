@@ -81,15 +81,15 @@ public class CalendarPanel extends JPanel {
 		centralPanel.add(dayHeaders, BorderLayout.NORTH);
 		_calendarPanel = new JPanel();
 		_calendarPanel.setLayout(new GridLayout(0, 7, 0, 0));
+		centralPanel.add(_calendarPanel);
 		
 		_mealDayDetailsPanel = new MealDayDetailsPanel();
 		_mealDayDetailsPanel.setMinimumSize(new Dimension(100, 100));
 		
-		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, _calendarPanel, _mealDayDetailsPanel);
+		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, centralPanel, _mealDayDetailsPanel);
 		splitPane.setOneTouchExpandable(false);
 		splitPane.setDividerLocation(700);
-		centralPanel.add(splitPane);
-		add(centralPanel);
+		add(splitPane);
 		
 		setMonth(_currentYear, _currentMonth);
 	}

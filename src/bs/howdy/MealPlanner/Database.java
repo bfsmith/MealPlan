@@ -18,20 +18,23 @@ public class Database {
 			e.printStackTrace();
 		}
 		List<SchemaPatch> patches = getSchemaPatches();
-		Connection db = getConnection();
-		int latestPatch = getLatestSchemaPatch(db);
-		for(SchemaPatch patch : patches) {
-			if(patch.getPatchNumber() > latestPatch) {
-				patch.execute(db);
-				addSchemaPatchNumber(db, patch.getPatchNumber());
+		Connection db = getReadOnlyConnection();
+		try {
+			int latestPatch = getLatestSchemaPatch(db);
+			for(SchemaPatch patch : patches) {
+				if(patch.getPatchNumber() > latestPatch) {
+					patch.execute(db);
+					addSchemaPatchNumber(db, patch.getPatchNumber());
+				}
 			}
+		} finally {
+			ensureIsClosed(db);
 		}
-		ensureIsClosed(db);
 	}
 
 	/** BEGING MAIN DISHES **/
 	public void addMainDish(MainDish dish) {
-		Connection db = getConnection();
+		Connection db = getWritableConnection();
 		PreparedStatement ps = null;
 		try {
 			ps = getStatement(db, "INSERT INTO mainDish (name, description) VALUES ( ? , ? )", new Object[] { dish.getName(), dish.getDescription() });
@@ -50,7 +53,7 @@ public class Database {
 		}
 	}
 	public void updateMainDish(MainDish dish) {
-		Connection db = getConnection();
+		Connection db = getWritableConnection();
 		PreparedStatement ps = null;
 		try {
 			ps = getStatement(db, "UPDATE mainDish SET name = ?, description = ? WHERE id = ?", new Object[] { dish.getName(), dish.getDescription(), dish.getId() });
@@ -64,7 +67,7 @@ public class Database {
 		}
 	}
 	public void deleteMainDish(MainDish dish) {
-		Connection db = getConnection();
+		Connection db = getWritableConnection();
 		PreparedStatement ps = null;
 		try {
 			ps = getStatement(db, "DELETE FROM mealDayMainDish WHERE mainDishId = ?", new Object[] { dish.getId() });
@@ -80,10 +83,10 @@ public class Database {
 		}
 	}
 	public MainDish getMainDish(int id) {
-		Connection db = getConnection();
+		Connection db = getReadOnlyConnection();
 		PreparedStatement ps = null;
 		try {
-			ps = getStatement(db, "select * FROM mainDish WHERE id = ?", new Object[] { String.valueOf(id) });
+			ps = getStatement(db, "SELECT * FROM mainDish WHERE id = ?", new Object[] { String.valueOf(id) });
 			ResultSet rs = ps.executeQuery();
 			if(rs.next())
 				return populateMainDish(rs);
@@ -98,11 +101,11 @@ public class Database {
 		return null;
 	}
 	public List<MainDish> getMainDishes() {
-		Connection db = getConnection();
+		Connection db = getReadOnlyConnection();
 		PreparedStatement ps = null;
 		ArrayList<MainDish> dishes = new ArrayList<MainDish>();
 		try {
-			ps = getStatement(db, "select * FROM mainDish");
+			ps = getStatement(db, "SELECT * FROM mainDish");
 			ResultSet rs = ps.executeQuery();
 			while(rs.next())
 				dishes.add(populateMainDish(rs));
@@ -131,7 +134,7 @@ public class Database {
 
 	/** BEGIN SIDE DISHES **/
 	public void addSideDish(SideDish dish) {
-		Connection db = getConnection();
+		Connection db = getWritableConnection();
 		PreparedStatement ps = null;
 		try {
 			ps = getStatement(db, "INSERT INTO sideDish (name, description) VALUES ( ? , ? )", new Object[] { dish.getName(), dish.getDescription() });
@@ -150,7 +153,7 @@ public class Database {
 		}
 	}
 	public void updateSideDish(SideDish dish) {
-		Connection db = getConnection();
+		Connection db = getWritableConnection();
 		PreparedStatement ps = null;
 		try {
 			ps = getStatement(db, "UPDATE sideDish SET name = ?, description = ? WHERE id = ?", new Object[] { dish.getName(), dish.getDescription(), dish.getId() });
@@ -164,7 +167,7 @@ public class Database {
 		}
 	}
 	public void deleteSideDish(SideDish dish) {
-		Connection db = getConnection();
+		Connection db = getWritableConnection();
 		PreparedStatement ps = null;
 		try {
 			ps = getStatement(db, "DELETE FROM mealDaySideDish WHERE sideDishId = ?", new Object[] { dish.getId() });
@@ -180,7 +183,7 @@ public class Database {
 		}
 	}
 	public SideDish getSideDish(int id) {
-		Connection db = getConnection();
+		Connection db = getReadOnlyConnection();
 		PreparedStatement ps = null;
 		try {
 			ps = getStatement(db, "select * FROM sideDish WHERE id = ?", new Object[] { String.valueOf(id) });
@@ -198,7 +201,7 @@ public class Database {
 		return null;
 	}
 	public List<SideDish> getSideDishes() {
-		Connection db = getConnection();
+		Connection db = getReadOnlyConnection();
 		PreparedStatement ps = null;
 		ArrayList<SideDish> dishes = new ArrayList<SideDish>();
 		try {
@@ -231,7 +234,7 @@ public class Database {
 
 	/** BEGIN MEAL DAYS **/
 	public void addMealDay(MealDay day) {
-		Connection db = getConnection();
+		Connection db = getWritableConnection();
 		PreparedStatement ps = null;
 		try {
 			ps = getStatement(db, "INSERT INTO mealDay (year, month, day) VALUES ( ? , ?, ? );", new Object[] { day.getYear(), day.getMonth(), day.getDay() });
@@ -275,7 +278,7 @@ public class Database {
 		ensureIsClosed(db);
 	}
 	public void updateMealDay(MealDay day) {
-		Connection db = getConnection();
+		Connection db = getWritableConnection();
 		PreparedStatement ps = null;
 		// Delete set main dish
 		try {
@@ -327,7 +330,7 @@ public class Database {
 		ensureIsClosed(db);
 	}
 	public MealDay getMealDay(int year, int month, int day) {
-		Connection db = getConnection();
+		Connection db = getReadOnlyConnection();
 		PreparedStatement ps = null;
 		try {
 			ps = getStatement(db, "SELECT * FROM mealDay WHERE year = ? AND month = ? AND day = ?;", new Object[] { year, month, day });
@@ -347,27 +350,6 @@ public class Database {
 		}
 		return null;
 	}
-//	public MealDay getMealDays() {
-//		Connection db = getConnection();
-//		PreparedStatement ps = null;
-//		try {
-//			ps = getStatement(db, "SELECT * FROM mealDay WHERE year = ? AND month = ? AND day = ?);", new Object[] { year, month, day });
-//			ResultSet rs = ps.executeQuery();
-//			if(rs.next()) {
-//				return populateMealDay(rs);
-//			}
-//			MealDay md = new MealDay(year, month, day, _manager);
-//			addMealDay(md);
-//			return md;
-//		} catch (SQLException e) {
-//			e.printStackTrace();
-//		}
-//		finally {
-//			ensureIsClosed(ps);
-//			ensureIsClosed(db);
-//		}
-//		return null;
-//	}
 	private MealDay populateMealDay(ResultSet rs) {
 		MealDay md = null;
 		try {
@@ -381,7 +363,7 @@ public class Database {
 		}
 		if(md == null)
 			return null;
-		Connection db = getConnection();
+		Connection db = getReadOnlyConnection();
 		PreparedStatement ps = null;
 		// Get main dish
 		try {
@@ -417,7 +399,7 @@ public class Database {
 	/** BEGIN COLOR PREFERENCES **/
 	private Map<String, Color> _colorPreferences;
 	public void setColorPreference(String name, Color color) {
-		Connection db = getConnection();
+		Connection db = getWritableConnection();
 		PreparedStatement ps = null;
 		try {
 			ps = getStatement(db, "INSERT OR REPLACE INTO colorPreference (name, R, G, B) VALUES  (?, ?, ?, ?);", new Object[] { name, color.getRed(), color.getGreen(), color.getBlue() });
@@ -442,10 +424,10 @@ public class Database {
 	}
 	private void loadColorPreferences() {
 		_colorPreferences = new HashMap<String, Color>();
-		Connection db = getConnection();
+		Connection db = getReadOnlyConnection();
 		PreparedStatement ps = null;
 		try {
-			ps = getStatement(db, "select * FROM colorPreference");
+			ps = getStatement(db, "SELECT * FROM colorPreference");
 			ResultSet rs = ps.executeQuery();
 			while(rs.next()) {
 				_colorPreferences.put(rs.getString("name"),
@@ -474,10 +456,19 @@ public class Database {
 	}
 	/** END COLOR PREFERENCES **/
 	
-	private Connection getConnection() {
+	private Connection getReadOnlyConnection() {
+		return getConnection(true);
+	}
+
+	private Connection getWritableConnection() {
+		return getConnection(false);
+	}
+	
+	private Connection getConnection(boolean isReadOnly) {
 		Connection connection = null;
 		try {
 			connection = DriverManager.getConnection("jdbc:sqlite:" + DB_NAME);
+			connection.setReadOnly(isReadOnly);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

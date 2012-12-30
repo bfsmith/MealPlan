@@ -4,6 +4,8 @@ import java.awt.*;
 
 import javax.swing.*;
 
+import org.sqlite.SQLiteJDBCLoader;
+
 import bs.howdy.MealPlanner.Entities.*;
 import bs.howdy.MealPlanner.UI.*;
 
@@ -44,8 +46,6 @@ public class MainWindow {
 		manager = new EntityManager();
 		_colorChooser = new JColorChooser();
 		_colorChooser.setPreviewPanel(new JPanel());
-		
-//		manager.populateTestData();
 		
 		_frmMealPlanner = new JFrame();
 		BorderLayout borderLayout = (BorderLayout) _frmMealPlanner.getContentPane().getLayout();

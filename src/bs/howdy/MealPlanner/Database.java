@@ -1,5 +1,6 @@
 package bs.howdy.MealPlanner;
 
+import java.awt.Color;
 import java.io.*;
 import java.sql.*;
 import java.util.*;
@@ -271,14 +272,9 @@ public class Database {
 		}
         if(day.getMainDish() != null) {
 			try {
-		        	ps = getStatement(db, "INSERT INTO mealDayMainDish (mealDayId, mainDishId) VALUES ( ? , ? );", new Object[] { day.getId(), day.getMainDish().getId() });
-					ps.executeUpdate();
-					ensureIsClosed(ps);
-		        for(SideDish sd : day.getSideDishes()) {
-		        	ps = getStatement(db, "INSERT INTO mealDaySideDish (mealDayId, sideDishId) VALUES ( ? , ? );", new Object[] { day.getId(), sd.getId() });
-					ps.executeUpdate();
-					ensureIsClosed(ps);
-		        }
+	        	ps = getStatement(db, "INSERT INTO mealDayMainDish (mealDayId, mainDishId) VALUES ( ? , ? );", new Object[] { day.getId(), day.getMainDish().getId() });
+				ps.executeUpdate();
+				ensureIsClosed(ps);
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -292,7 +288,7 @@ public class Database {
 		        	ps = getStatement(db, "INSERT INTO mealDaySideDish (mealDayId, sideDishId) VALUES ( ? , ? );", new Object[] { day.getId(), sd.getId() });
 					ps.executeUpdate();
 					ensureIsClosed(ps);
-	        }
+		        }
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -440,7 +436,67 @@ public class Database {
 		}
 		return md;
 	}
-	/** END MEAL DAYS**/
+	/** END MEAL DAYS **/
+	
+	/** BEGIN COLOR PREFERENCES **/
+	private Map<String, Color> _colorPreferences;
+	public void setColorPreference(String name, Color color) {
+		Connection db = getConnection();
+		PreparedStatement ps = null;
+		try {
+			ps = getStatement(db, "INSERT OR REPLACE INTO colorPreference (name, R, G, B) VALUES  (?, ?, ?, ?);", new Object[] { name, color.getRed(), color.getGreen(), color.getBlue() });
+			ps.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		finally {
+			ensureIsClosed(ps);
+			ensureIsClosed(db);
+		}
+		ensureColorPreferencesAreLoaded();
+		_colorPreferences.put(name, color);
+	}
+	public Color getColor(String name) {
+		ensureColorPreferencesAreLoaded();
+		return _colorPreferences.get(name);
+	}
+	private void ensureColorPreferencesAreLoaded() {
+		if(_colorPreferences == null)
+			loadColorPreferences();
+	}
+	private void loadColorPreferences() {
+		_colorPreferences = new HashMap<String, Color>();
+		Connection db = getConnection();
+		PreparedStatement ps = null;
+		try {
+			ps = getStatement(db, "select * FROM colorPreference");
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()) {
+				_colorPreferences.put(rs.getString("name"),
+					new Color(rs.getInt("R"), rs.getInt("G"), rs.getInt("B")));
+			}
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		finally {
+			ensureIsClosed(ps);
+			ensureIsClosed(db);
+		}
+	}
+	public void restoreColorPreferences() {
+		setColorPreference("nonSelectedMonthBackground", new Color(220, 220, 220));
+		setColorPreference("MainDishBorder", Color.BLUE);
+		setColorPreference("MainDishBackground", new Color(132, 199, 255));
+		setColorPreference("SideDishBorder", new Color(150, 100, 255));
+		setColorPreference("SideDishBackground", new Color(230, 200, 255));
+		setColorPreference("weekendBackground", new Color(255, 220, 220));
+		setColorPreference("todayBackground", new Color(150, 150, 255));
+		setColorPreference("defaultDayBackground", new Color(255, 255, 255));
+		setColorPreference("defaultDayBorder", Color.LIGHT_GRAY);
+		setColorPreference("selectedDayBorder", Color.DARK_GRAY);
+	}
+	/** END COLOR PREFERENCES **/
 	
 	private Connection getConnection() {
 		Connection connection = null;
@@ -505,7 +561,7 @@ public class Database {
 	}
 	
 	private int getLatestSchemaPatch(Connection db) {
-//		executeSql(db, "DROP TABLE IF EXISTS schemaPatch;");
+		executeSql(db, "DROP TABLE IF EXISTS schemaPatch;");
 		executeSql(db, "CREATE TABLE IF NOT EXISTS schemaPatch ( patchNumber INTEGER NOT NULL PRIMARY KEY ASC );");
 		
 		PreparedStatement ps2 = getStatement(db, "SELECT patchNumber FROM schemaPatch ORDER BY patchNumber DESC LIMIT 1;", null);
@@ -538,7 +594,6 @@ public class Database {
 				executeSql(db, "CREATE TABLE IF NOT EXISTS sideDish ( id INTEGER NOT NULL PRIMARY KEY ASC, name TEXT NOT NULL, description TEXT );");
 			}
 		});
-
 		patches.add(new SchemaPatch() {
 			@Override
 			public int getPatchNumber() {
@@ -552,6 +607,18 @@ public class Database {
 				executeSql(db, "CREATE TABLE IF NOT EXISTS mealDay ( id INTEGER NOT NULL PRIMARY KEY ASC, year INTEGER NOT NULL, month INTEGER NOT NULL, day INTEGER NOT NULL);");
 				executeSql(db, "CREATE TABLE IF NOT EXISTS mealDayMainDish ( mealDayId INTEGER NOT NULL, mainDishId INTEGER NOT NULL);");
 				executeSql(db, "CREATE TABLE IF NOT EXISTS mealDaySideDish ( mealDayId INTEGER NOT NULL, sideDishId INTEGER NOT NULL);");
+			}
+		});
+		patches.add(new SchemaPatch() {
+			@Override
+			public int getPatchNumber() {
+				return 3;
+			}
+			@Override
+			public void execute(Connection db) {
+				executeSql(db, "DROP TABLE IF EXISTS colorPreference;");
+				executeSql(db, "CREATE TABLE IF NOT EXISTS colorPreference ( name TEXT NOT NULL PRIMARY KEY ASC, R INTEGER NOT NULL, G INTEGER NOT NULL, B INTEGER NOT NULL);");
+				restoreColorPreferences();
 			}
 		});
 		return patches;

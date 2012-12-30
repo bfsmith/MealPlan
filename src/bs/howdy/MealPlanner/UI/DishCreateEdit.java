@@ -90,7 +90,7 @@ public class DishCreateEdit extends JDialog {
 				}
 				if(_dishType == SIDE_DISH) {
 					if(_dishId > 0) {
-						SideDish dish = _manager.SideDishes.get(_dishId);
+						SideDish dish = _manager.SideDishes.getSideDish(_dishId);
 						dish.setName(_name.getText());
 						dish.setDescription(_description.getText());
 					}

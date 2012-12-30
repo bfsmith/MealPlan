@@ -52,7 +52,7 @@ public class MainWindow {
 		_colorChooser = new JColorChooser();
 		_colorChooser.setPreviewPanel(new JPanel());
 		
-//		manager.populateTestData();
+		manager.populateTestData();
 		
 		_frmMealPlanner = new JFrame();
 		BorderLayout borderLayout = (BorderLayout) _frmMealPlanner.getContentPane().getLayout();
@@ -177,9 +177,9 @@ public class MainWindow {
 		todayBackground.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Color c = _colorChooser.showDialog(_frmMealPlanner, "Today's Date Background", manager.ColorPreferences.todayBackground);
+				Color c = _colorChooser.showDialog(_frmMealPlanner, "Today's Date Background", manager.ColorPreferences.getColor("todayBackground"));
 				if(c != null)
-					manager.ColorPreferences.todayBackground = c;
+					manager.ColorPreferences.setColor("todayBackground", c);
 					calendarPanel.revalidate();
 					calendarPanel.repaint();
 					calendarPanel.refreshCalendar();
@@ -191,9 +191,9 @@ public class MainWindow {
 		weekendBackground.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Color c = _colorChooser.showDialog(_frmMealPlanner, "Weekend Background", manager.ColorPreferences.weekendBackground);
+				Color c = _colorChooser.showDialog(_frmMealPlanner, "Weekend Background", manager.ColorPreferences.getColor("weekendBackground"));
 				if(c != null)
-					manager.ColorPreferences.weekendBackground = c;
+					manager.ColorPreferences.setColor("weekendBackground", c);
 					calendarPanel.revalidate();
 					calendarPanel.repaint();
 					calendarPanel.refreshCalendar();
@@ -205,9 +205,9 @@ public class MainWindow {
 		mainDishBorder.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Color c = _colorChooser.showDialog(_frmMealPlanner, "Main Dish Border", manager.ColorPreferences.MainDishBorder);
+				Color c = _colorChooser.showDialog(_frmMealPlanner, "Main Dish Border", manager.ColorPreferences.getColor("MainDishBorder"));
 				if(c != null)
-					manager.ColorPreferences.MainDishBorder = c;
+					manager.ColorPreferences.setColor("MainDishBorder", c);
 					calendarPanel.revalidate();
 					calendarPanel.repaint();
 					calendarPanel.refreshCalendar();
@@ -219,9 +219,9 @@ public class MainWindow {
 		mainDishBackground.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Color c = _colorChooser.showDialog(_frmMealPlanner, "Main Dish Background", manager.ColorPreferences.MainDishBackground);
+				Color c = _colorChooser.showDialog(_frmMealPlanner, "Main Dish Background", manager.ColorPreferences.getColor("MainDishBackground"));
 				if(c != null)
-					manager.ColorPreferences.MainDishBackground = c;
+					manager.ColorPreferences.setColor("MainDishBackground", c);
 					calendarPanel.revalidate();
 					calendarPanel.repaint();
 					calendarPanel.refreshCalendar();
@@ -233,9 +233,9 @@ public class MainWindow {
 		sideDishBorder.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Color c = _colorChooser.showDialog(_frmMealPlanner, "Side Dish Border", manager.ColorPreferences.SideDishBorder);
+				Color c = _colorChooser.showDialog(_frmMealPlanner, "Side Dish Border", manager.ColorPreferences.getColor("SideDishBorder"));
 				if(c != null)
-					manager.ColorPreferences.SideDishBorder = c;
+					manager.ColorPreferences.setColor("SideDishBorder", c);
 					calendarPanel.revalidate();
 					calendarPanel.repaint();
 					calendarPanel.refreshCalendar();
@@ -247,9 +247,9 @@ public class MainWindow {
 		sideDishBackground.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Color c = _colorChooser.showDialog(_frmMealPlanner, "Side Dish Background", manager.ColorPreferences.SideDishBackground);
+				Color c = _colorChooser.showDialog(_frmMealPlanner, "Side Dish Background", manager.ColorPreferences.getColor("SideDishBackground"));
 				if(c != null)
-					manager.ColorPreferences.SideDishBackground = c;
+					manager.ColorPreferences.setColor("SideDishBackground", c);
 					calendarPanel.revalidate();
 					calendarPanel.repaint();
 					calendarPanel.refreshCalendar();
@@ -261,9 +261,9 @@ public class MainWindow {
 		defaultDayBackground.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Color c = _colorChooser.showDialog(_frmMealPlanner, "Default Day Background", manager.ColorPreferences.defaultDayBackground);
+				Color c = _colorChooser.showDialog(_frmMealPlanner, "Default Day Background", manager.ColorPreferences.getColor("defaultDayBackground"));
 				if(c != null)
-					manager.ColorPreferences.defaultDayBackground = c;
+					manager.ColorPreferences.setColor("defaultDayBackground", c);
 					calendarPanel.revalidate();
 					calendarPanel.repaint();
 					calendarPanel.refreshCalendar();
@@ -275,9 +275,9 @@ public class MainWindow {
 		selectedDayBorder.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Color c = _colorChooser.showDialog(_frmMealPlanner, "Selected Day Border", manager.ColorPreferences.selectedDayBorder);
+				Color c = _colorChooser.showDialog(_frmMealPlanner, "Selected Day Border", manager.ColorPreferences.getColor("selectedDayBorder"));
 				if(c != null)
-					manager.ColorPreferences.selectedDayBorder = c;
+					manager.ColorPreferences.setColor("selectedDayBorder", c);
 					calendarPanel.revalidate();
 					calendarPanel.repaint();
 					calendarPanel.refreshCalendar();
@@ -289,9 +289,9 @@ public class MainWindow {
 		defaultDayBorder .addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Color c = _colorChooser.showDialog(_frmMealPlanner, "Day Border", manager.ColorPreferences.defaultDayBorder );
+				Color c = _colorChooser.showDialog(_frmMealPlanner, "Day Border", manager.ColorPreferences.getColor("defaultDayBorder"));
 				if(c != null)
-					manager.ColorPreferences.defaultDayBorder  = c;
+					manager.ColorPreferences.setColor("defaultDayBorder", c);
 					calendarPanel.revalidate();
 					calendarPanel.repaint();
 					calendarPanel.refreshCalendar();
@@ -303,9 +303,9 @@ public class MainWindow {
 		nonSelectedMonthBackground .addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Color c = _colorChooser.showDialog(_frmMealPlanner, "Other Month Background", manager.ColorPreferences.nonSelectedMonthBackground );
+				Color c = _colorChooser.showDialog(_frmMealPlanner, "Other Month Background", manager.ColorPreferences.getColor("nonSelectedMonthBackground"));
 				if(c != null)
-					manager.ColorPreferences.nonSelectedMonthBackground  = c;
+					manager.ColorPreferences.setColor("nonSelectedMonthBackground", c);
 					calendarPanel.revalidate();
 					calendarPanel.repaint();
 					calendarPanel.refreshCalendar();
@@ -317,7 +317,7 @@ public class MainWindow {
 		restoreDefaults.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				manager.ColorPreferences.restoreDefaults();
+				manager.ColorPreferences.restoreDefaultColors();
 				calendarPanel.revalidate();
 				calendarPanel.repaint();
 				calendarPanel.refreshCalendar();
@@ -332,7 +332,7 @@ public class MainWindow {
 		
 	private void populateSideDishes(DefaultListModel<SideDish> sideDishModel) {
 		sideDishModel.clear();
-		for(SideDish dish : manager.SideDishes.getDishes()) {
+		for(SideDish dish : manager.SideDishes.getSideDishes()) {
 			sideDishModel.addElement(dish);
 		}
 	}

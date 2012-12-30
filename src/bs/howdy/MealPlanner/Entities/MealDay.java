@@ -58,7 +58,7 @@ public class MealDay {
 	public List<SideDish> getSideDishes() {
 		ArrayList<SideDish> dishes = new ArrayList<SideDish>();
 		for(Integer id : _sideDishIds) {
-			dishes.add(_manager.SideDishes.get(id));
+			dishes.add(_manager.SideDishes.getSideDish(id));
 		}
 		return dishes;
 	}

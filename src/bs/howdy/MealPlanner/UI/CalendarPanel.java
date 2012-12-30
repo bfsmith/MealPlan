@@ -159,20 +159,20 @@ public class CalendarPanel extends JPanel {
 	private MealDayPanel dayPanel(final int year, final int month, final int day) {
 		GregorianCalendar cal = new GregorianCalendar(year, month, day);
 		
-		Color background = _manager.ColorPreferences.defaultDayBackground;
+		Color background = _manager.ColorPreferences.getColor("defaultDayBackground");
 		if(day == _currentDay && month == _currentMonth && year == _currentYear)
-			background = _manager.ColorPreferences.todayBackground;
+			background = _manager.ColorPreferences.getColor("todayBackground");
 		else if(cal.get(GregorianCalendar.MONTH) != _month) {
-			background = _manager.ColorPreferences.nonSelectedMonthBackground;
+			background = _manager.ColorPreferences.getColor("nonSelectedMonthBackground");
 		}
 		else if (cal.get(GregorianCalendar.DAY_OF_WEEK) == GregorianCalendar.SUNDAY || cal.get(GregorianCalendar.DAY_OF_WEEK) == GregorianCalendar.SATURDAY){
-			background = _manager.ColorPreferences.weekendBackground;
+			background = _manager.ColorPreferences.getColor("weekendBackground");
 		}
 
 		MealDay md = _manager.MealDays.getMealDay(year, month+1, day);
 		if(md == null) {
 			md = new MealDay(year, month+1, day, _manager);
-			_manager.MealDays.addMealDay(md);
+			_manager.MealDays.addUpdateMealDay(md);
 		}
 		
 		final MealDayPanel panel = new MealDayPanel(md, day, background, _manager);

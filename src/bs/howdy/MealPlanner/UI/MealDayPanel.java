@@ -31,7 +31,7 @@ public class MealDayPanel extends JPanel implements Droppable<Dish> {
 		else if(d instanceof SideDish) {
 			_md.addSideDish((SideDish)d);
 		}
-		_manager.MealDays.addUpdateMealDay(_md);
+		_manager.addUpdateMealDay(_md);
 		revalidate();
 		setupPanel();
 	}
@@ -45,11 +45,11 @@ public class MealDayPanel extends JPanel implements Droppable<Dish> {
 	}
 	
 	public void select() {
-		setBorder(BorderFactory.createLineBorder(_manager.ColorPreferences.getColor("selectedDayBorder")));
+		setBorder(BorderFactory.createLineBorder(_manager.getColor("selectedDayBorder")));
 		repaint();
 	}
 	public void deselect() {
-		setBorder(BorderFactory.createLineBorder(_manager.ColorPreferences.getColor("defaultDayBorder")));
+		setBorder(BorderFactory.createLineBorder(_manager.getColor("defaultDayBorder")));
 		repaint();
 	}
 	
@@ -61,7 +61,7 @@ public class MealDayPanel extends JPanel implements Droppable<Dish> {
 		
 		final JPanel meals = new JPanel();
 		meals.setBackground(getBackground());
-		setBorder(BorderFactory.createLineBorder(_manager.ColorPreferences.getColor("defaultDayBorder")));
+		setBorder(BorderFactory.createLineBorder(_manager.getColor("defaultDayBorder")));
 		meals.setLayout(new GridLayout(4,1,2,2));
 
 		MainDish mainDish = _md.getMainDish();
@@ -69,8 +69,8 @@ public class MealDayPanel extends JPanel implements Droppable<Dish> {
 			final JPanel jp = new JPanel();
 			jp.setLayout(new BorderLayout());
 			JLabel mdp = new JLabel(mainDish.getName());
-			jp.setBackground(_manager.ColorPreferences.getColor("MainDishBackground"));
-			jp.setBorder(BorderFactory.createLineBorder(_manager.ColorPreferences.getColor("MainDishBorder")));
+			jp.setBackground(_manager.getColor("MainDishBackground"));
+			jp.setBorder(BorderFactory.createLineBorder(_manager.getColor("MainDishBorder")));
 			jp.add(mdp);
 			
 			JLabel removeBtn = new JLabel("X");
@@ -91,8 +91,8 @@ public class MealDayPanel extends JPanel implements Droppable<Dish> {
 			final JPanel jp = new JPanel();
 			jp.setLayout(new BorderLayout());
 			JLabel sdp = new JLabel(sideDish.getName());
-			jp.setBackground(_manager.ColorPreferences.getColor("SideDishBackground"));
-			jp.setBorder(BorderFactory.createLineBorder(_manager.ColorPreferences.getColor("SideDishBorder")));
+			jp.setBackground(_manager.getColor("SideDishBackground"));
+			jp.setBorder(BorderFactory.createLineBorder(_manager.getColor("SideDishBorder")));
 			jp.add(sdp);
 			
 			JLabel removeBtn = new JLabel("X");

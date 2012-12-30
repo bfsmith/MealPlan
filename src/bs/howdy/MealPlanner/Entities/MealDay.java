@@ -45,7 +45,7 @@ public class MealDay {
 
 	private int _mainDishId;	
 	public MainDish getMainDish() {
-		return _manager.MainDishes.get(_mainDishId);
+		return _manager.getMainDish(_mainDishId);
 	}
 	public void setMainDish(MainDish mainDish) {
 		if(mainDish != null)
@@ -58,7 +58,7 @@ public class MealDay {
 	public List<SideDish> getSideDishes() {
 		ArrayList<SideDish> dishes = new ArrayList<SideDish>();
 		for(Integer id : _sideDishIds) {
-			dishes.add(_manager.SideDishes.getSideDish(id));
+			dishes.add(_manager.getSideDish(id));
 		}
 		return dishes;
 	}

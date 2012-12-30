@@ -1,12 +1,10 @@
 package bs.howdy.MealPlanner;
 
 import java.awt.Color;
-import java.io.*;
 import java.sql.*;
 import java.util.*;
 
 import bs.howdy.MealPlanner.Entities.*;
-
 
 public class Database {
 	private final String DB_NAME = "data.db";
@@ -29,28 +27,6 @@ public class Database {
 			}
 		}
 		ensureIsClosed(db);
-	}
-	
-	public void executeCommand(String sql) {
-		Connection db = getConnection();
-		PreparedStatement ps = null;
-		try {
-			ps = getStatement(db, sql, null);
-			ResultSet rs = ps.executeQuery();
-			while(rs.next()) {
-				for(int i = 0; i < rs.getMetaData().getColumnCount(); i++) {
-					System.out.print(rs.getString(i) + " | ");
-				}
-				System.out.println();
-			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		finally {
-			ensureIsClosed(ps);
-			ensureIsClosed(db);
-		}
 	}
 
 	/** BEGING MAIN DISHES **/
@@ -501,7 +477,7 @@ public class Database {
 	private Connection getConnection() {
 		Connection connection = null;
 		try {
-			connection = DriverManager.getConnection("jdbc:sqlite:data.db");
+			connection = DriverManager.getConnection("jdbc:sqlite:" + DB_NAME);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -561,7 +537,6 @@ public class Database {
 	}
 	
 	private int getLatestSchemaPatch(Connection db) {
-		executeSql(db, "DROP TABLE IF EXISTS schemaPatch;");
 		executeSql(db, "CREATE TABLE IF NOT EXISTS schemaPatch ( patchNumber INTEGER NOT NULL PRIMARY KEY ASC );");
 		
 		PreparedStatement ps2 = getStatement(db, "SELECT patchNumber FROM schemaPatch ORDER BY patchNumber DESC LIMIT 1;", null);
@@ -588,8 +563,6 @@ public class Database {
 			}
 			@Override
 			public void execute(Connection db) {
-				executeSql(db, "DROP TABLE IF EXISTS mainDish;");
-				executeSql(db, "DROP TABLE IF EXISTS sideDish;");
 				executeSql(db, "CREATE TABLE IF NOT EXISTS mainDish ( id INTEGER NOT NULL PRIMARY KEY ASC, name TEXT NOT NULL, description TEXT );");
 				executeSql(db, "CREATE TABLE IF NOT EXISTS sideDish ( id INTEGER NOT NULL PRIMARY KEY ASC, name TEXT NOT NULL, description TEXT );");
 			}
@@ -601,9 +574,6 @@ public class Database {
 			}
 			@Override
 			public void execute(Connection db) {
-				executeSql(db, "DROP TABLE IF EXISTS mealDay;");
-				executeSql(db, "DROP TABLE IF EXISTS mealDayMainDish;");
-				executeSql(db, "DROP TABLE IF EXISTS mealDaySideDish;");
 				executeSql(db, "CREATE TABLE IF NOT EXISTS mealDay ( id INTEGER NOT NULL PRIMARY KEY ASC, year INTEGER NOT NULL, month INTEGER NOT NULL, day INTEGER NOT NULL);");
 				executeSql(db, "CREATE TABLE IF NOT EXISTS mealDayMainDish ( mealDayId INTEGER NOT NULL, mainDishId INTEGER NOT NULL);");
 				executeSql(db, "CREATE TABLE IF NOT EXISTS mealDaySideDish ( mealDayId INTEGER NOT NULL, sideDishId INTEGER NOT NULL);");
@@ -616,7 +586,6 @@ public class Database {
 			}
 			@Override
 			public void execute(Connection db) {
-				executeSql(db, "DROP TABLE IF EXISTS colorPreference;");
 				executeSql(db, "CREATE TABLE IF NOT EXISTS colorPreference ( name TEXT NOT NULL PRIMARY KEY ASC, R INTEGER NOT NULL, G INTEGER NOT NULL, B INTEGER NOT NULL);");
 				restoreColorPreferences();
 			}

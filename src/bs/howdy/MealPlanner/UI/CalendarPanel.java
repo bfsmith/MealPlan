@@ -19,7 +19,6 @@ public class CalendarPanel extends JPanel {
 	private int _month;
 	private String[] daysOfWeek = { "Sun", "Mon", "Tues", "Wed", "Thur", "Fri", "Sat" };
 	private String[] monthsOfYear = { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
-	private int _selectedDay = -1;
 	private MealDayPanel _selectedPanel = null;
 	private int _currentDay;
 	private int _currentMonth;
@@ -82,11 +81,15 @@ public class CalendarPanel extends JPanel {
 		centralPanel.add(dayHeaders, BorderLayout.NORTH);
 		_calendarPanel = new JPanel();
 		_calendarPanel.setLayout(new GridLayout(0, 7, 0, 0));
-		centralPanel.add(_calendarPanel);
-		add(centralPanel);
-
+		
 		_mealDayDetailsPanel = new MealDayDetailsPanel();
-		add(_mealDayDetailsPanel, BorderLayout.EAST);
+		_mealDayDetailsPanel.setMinimumSize(new Dimension(100, 100));
+		
+		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, _calendarPanel, _mealDayDetailsPanel);
+		splitPane.setOneTouchExpandable(false);
+		splitPane.setDividerLocation(700);
+		centralPanel.add(splitPane);
+		add(centralPanel);
 		
 		setMonth(_currentYear, _currentMonth);
 	}
@@ -119,11 +122,11 @@ public class CalendarPanel extends JPanel {
 			_calendarPanel.add(dayPanel(year, month, i));
 		}
 		if((startDay + numberOfDays) % 7 > 0) {
-			GregorianCalendar previousMonth = getPreviousMonth(year, month);
-			int maxDays = previousMonth.getActualMaximum(GregorianCalendar.DAY_OF_MONTH);
+			GregorianCalendar nextMonth = getNextMonth(year, month);
+			nextMonth.getActualMaximum(GregorianCalendar.DAY_OF_MONTH);
 			
 			for(int i = 1; i <= 7-(startDay + numberOfDays) % 7; i++) {
-				JPanel jp = dayPanel(previousMonth.get(GregorianCalendar.YEAR), previousMonth.get(GregorianCalendar.MONTH), i);
+				JPanel jp = dayPanel(nextMonth.get(GregorianCalendar.YEAR), nextMonth.get(GregorianCalendar.MONTH), i);
 				_calendarPanel.add(jp);
 			}
 		}
@@ -145,34 +148,23 @@ public class CalendarPanel extends JPanel {
 		return new GregorianCalendar(year, month, 1);
 	}
 	
-	private JPanel emptyPanel() {
-		JPanel panel = new JPanel();
-		panel.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent mouseEvent) {
-				setSelected(null);
-			}
-		});
-		return panel;
-	}
-	
 	private MealDayPanel dayPanel(final int year, final int month, final int day) {
 		GregorianCalendar cal = new GregorianCalendar(year, month, day);
 		
-		Color background = _manager.ColorPreferences.getColor("defaultDayBackground");
+		Color background = _manager.getColor("defaultDayBackground");
 		if(day == _currentDay && month == _currentMonth && year == _currentYear)
-			background = _manager.ColorPreferences.getColor("todayBackground");
+			background = _manager.getColor("todayBackground");
 		else if(cal.get(GregorianCalendar.MONTH) != _month) {
-			background = _manager.ColorPreferences.getColor("nonSelectedMonthBackground");
+			background = _manager.getColor("nonSelectedMonthBackground");
 		}
 		else if (cal.get(GregorianCalendar.DAY_OF_WEEK) == GregorianCalendar.SUNDAY || cal.get(GregorianCalendar.DAY_OF_WEEK) == GregorianCalendar.SATURDAY){
-			background = _manager.ColorPreferences.getColor("weekendBackground");
+			background = _manager.getColor("weekendBackground");
 		}
 
-		MealDay md = _manager.MealDays.getMealDay(year, month+1, day);
+		MealDay md = _manager.getMealDay(year, month+1, day);
 		if(md == null) {
 			md = new MealDay(year, month+1, day, _manager);
-			_manager.MealDays.addUpdateMealDay(md);
+			_manager.addUpdateMealDay(md);
 		}
 		
 		final MealDayPanel panel = new MealDayPanel(md, day, background, _manager);

@@ -18,4 +18,14 @@ public class Cache {
 	public void remove(String key) {
 		_cache.remove(key);
 	}
+	public void removeAll(String keyStartsWith) {
+		ArrayList<String> keysToRemove = new ArrayList<String>();
+		for(String key : _cache.keySet()) {
+			if(key.startsWith(keyStartsWith))
+				keysToRemove.add(key);
+		}
+		for(String key : keysToRemove) {
+			_cache.remove(key);
+		}
+	}
 }

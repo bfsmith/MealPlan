@@ -3,22 +3,17 @@ package bs.howdy.MealPlanner;
 import java.awt.*;
 
 import javax.swing.*;
-import javax.swing.event.MenuEvent;
-import javax.swing.event.MenuListener;
 
-import bs.howdy.MealPlanner.EntityManager.ColorPreferences;
 import bs.howdy.MealPlanner.Entities.*;
 import bs.howdy.MealPlanner.UI.*;
+
 import java.awt.event.*;
-import java.io.*;
 
 public class MainWindow {
-	private DataService _dataService;
 	private JFrame _frmMealPlanner;
 	private EntityManager manager;
 	private JList<MainDish> mainDishes;
 	private JList<SideDish> sideDishes;
-	private MealDayDetailsPanel mealDayDetailsPanel;
 	private CalendarPanel calendarPanel;
 	private JColorChooser _colorChooser;
 
@@ -46,13 +41,11 @@ public class MainWindow {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-//		_dataService = new DataService();
-//		manager = _dataService.Import();
 		manager = new EntityManager();
 		_colorChooser = new JColorChooser();
 		_colorChooser.setPreviewPanel(new JPanel());
 		
-		manager.populateTestData();
+//		manager.populateTestData();
 		
 		_frmMealPlanner = new JFrame();
 		BorderLayout borderLayout = (BorderLayout) _frmMealPlanner.getContentPane().getLayout();
@@ -61,20 +54,12 @@ public class MainWindow {
 		_frmMealPlanner.setTitle("Meal Planner");
 		_frmMealPlanner.setBounds(100, 100, 1100, 688);
 		_frmMealPlanner.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		_frmMealPlanner.addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent arg0) {
-//				_dataService.Export(manager);
-			}
-		});
-
+		
 		calendarPanel = new CalendarPanel(manager);
 		_frmMealPlanner.getContentPane().add(calendarPanel, BorderLayout.CENTER);
 		
 		JMenuBar mb = buildMenuBar();
         _frmMealPlanner.setJMenuBar(mb);
-		
-		DishListRenderer listRenderer = new DishListRenderer();
 		
 		JPanel leftSidePanel = new JPanel();
 		leftSidePanel.setPreferredSize(new Dimension(200, 600));
@@ -87,8 +72,27 @@ public class MainWindow {
 		
 		final DefaultListModel<MainDish> mainDishModel = new DefaultListModel<MainDish>();
 		populateMainDishes(mainDishModel);
-		mainDishes = new DishList<MainDish>(mainDishModel, "Main Dish", manager);
+		mainDishes = new DishList<MainDish>(mainDishModel, "Main Dish");
 		mainDishPanel.add(mainDishes);
+		mainDishes.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent mouseEvent) {
+				if (mouseEvent.getClickCount() == 2) {
+					int index = mainDishes.locationToIndex(mouseEvent.getPoint());
+					if (index >= 0) {
+						Dish dish = mainDishes.getModel().getElementAt(index);
+						DishCreateEdit dce = new DishCreateEdit(null, "Edit Main Dish", (MainDish)dish, manager);
+						dce.addWindowListener(new WindowAdapter() {
+							@Override
+							public void windowClosed(WindowEvent arg0) {
+								populateMainDishes(mainDishModel);
+							}
+						});
+						dce.setVisible(true);
+					}
+		        }
+			}
+		});
 		
 		JPanel mainDishButtonPanel = new JPanel();
 		mainDishButtonPanel.setLayout(new GridLayout(1, 2, 2, 2));
@@ -131,8 +135,27 @@ public class MainWindow {
 		
 		final DefaultListModel<SideDish> sideDishModel = new DefaultListModel<SideDish>();
 		populateSideDishes(sideDishModel);
-		sideDishes = new DishList<SideDish>(sideDishModel, "Side Dish", manager);
+		sideDishes = new DishList<SideDish>(sideDishModel, "Side Dish");
 		sideDishPanel.add(sideDishes);
+		sideDishes.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent mouseEvent) {
+				if (mouseEvent.getClickCount() == 2) {
+					int index = sideDishes.locationToIndex(mouseEvent.getPoint());
+					if (index >= 0) {
+						Dish dish = sideDishes.getModel().getElementAt(index);
+						DishCreateEdit dce = new DishCreateEdit(null, "Edit Side Dish", (SideDish)dish, manager);
+						dce.addWindowListener(new WindowAdapter() {
+							@Override
+							public void windowClosed(WindowEvent arg0) {
+								populateSideDishes(sideDishModel);
+							}
+						});
+						dce.setVisible(true);
+					}
+		        }
+			}
+		});
 
 		JPanel sideDishButtonPanel = new JPanel();
 		sideDishButtonPanel.setLayout(new GridLayout(1, 2, 2, 2));
@@ -177,9 +200,9 @@ public class MainWindow {
 		todayBackground.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Color c = _colorChooser.showDialog(_frmMealPlanner, "Today's Date Background", manager.ColorPreferences.getColor("todayBackground"));
+				Color c = _colorChooser.showDialog(_frmMealPlanner, "Today's Date Background", manager.getColor("todayBackground"));
 				if(c != null)
-					manager.ColorPreferences.setColor("todayBackground", c);
+					manager.setColor("todayBackground", c);
 					calendarPanel.revalidate();
 					calendarPanel.repaint();
 					calendarPanel.refreshCalendar();
@@ -191,9 +214,9 @@ public class MainWindow {
 		weekendBackground.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Color c = _colorChooser.showDialog(_frmMealPlanner, "Weekend Background", manager.ColorPreferences.getColor("weekendBackground"));
+				Color c = _colorChooser.showDialog(_frmMealPlanner, "Weekend Background", manager.getColor("weekendBackground"));
 				if(c != null)
-					manager.ColorPreferences.setColor("weekendBackground", c);
+					manager.setColor("weekendBackground", c);
 					calendarPanel.revalidate();
 					calendarPanel.repaint();
 					calendarPanel.refreshCalendar();
@@ -205,9 +228,9 @@ public class MainWindow {
 		mainDishBorder.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Color c = _colorChooser.showDialog(_frmMealPlanner, "Main Dish Border", manager.ColorPreferences.getColor("MainDishBorder"));
+				Color c = _colorChooser.showDialog(_frmMealPlanner, "Main Dish Border", manager.getColor("MainDishBorder"));
 				if(c != null)
-					manager.ColorPreferences.setColor("MainDishBorder", c);
+					manager.setColor("MainDishBorder", c);
 					calendarPanel.revalidate();
 					calendarPanel.repaint();
 					calendarPanel.refreshCalendar();
@@ -219,9 +242,9 @@ public class MainWindow {
 		mainDishBackground.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Color c = _colorChooser.showDialog(_frmMealPlanner, "Main Dish Background", manager.ColorPreferences.getColor("MainDishBackground"));
+				Color c = _colorChooser.showDialog(_frmMealPlanner, "Main Dish Background", manager.getColor("MainDishBackground"));
 				if(c != null)
-					manager.ColorPreferences.setColor("MainDishBackground", c);
+					manager.setColor("MainDishBackground", c);
 					calendarPanel.revalidate();
 					calendarPanel.repaint();
 					calendarPanel.refreshCalendar();
@@ -233,9 +256,9 @@ public class MainWindow {
 		sideDishBorder.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Color c = _colorChooser.showDialog(_frmMealPlanner, "Side Dish Border", manager.ColorPreferences.getColor("SideDishBorder"));
+				Color c = _colorChooser.showDialog(_frmMealPlanner, "Side Dish Border", manager.getColor("SideDishBorder"));
 				if(c != null)
-					manager.ColorPreferences.setColor("SideDishBorder", c);
+					manager.setColor("SideDishBorder", c);
 					calendarPanel.revalidate();
 					calendarPanel.repaint();
 					calendarPanel.refreshCalendar();
@@ -247,9 +270,9 @@ public class MainWindow {
 		sideDishBackground.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Color c = _colorChooser.showDialog(_frmMealPlanner, "Side Dish Background", manager.ColorPreferences.getColor("SideDishBackground"));
+				Color c = _colorChooser.showDialog(_frmMealPlanner, "Side Dish Background", manager.getColor("SideDishBackground"));
 				if(c != null)
-					manager.ColorPreferences.setColor("SideDishBackground", c);
+					manager.setColor("SideDishBackground", c);
 					calendarPanel.revalidate();
 					calendarPanel.repaint();
 					calendarPanel.refreshCalendar();
@@ -261,9 +284,9 @@ public class MainWindow {
 		defaultDayBackground.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Color c = _colorChooser.showDialog(_frmMealPlanner, "Default Day Background", manager.ColorPreferences.getColor("defaultDayBackground"));
+				Color c = _colorChooser.showDialog(_frmMealPlanner, "Default Day Background", manager.getColor("defaultDayBackground"));
 				if(c != null)
-					manager.ColorPreferences.setColor("defaultDayBackground", c);
+					manager.setColor("defaultDayBackground", c);
 					calendarPanel.revalidate();
 					calendarPanel.repaint();
 					calendarPanel.refreshCalendar();
@@ -275,9 +298,9 @@ public class MainWindow {
 		selectedDayBorder.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Color c = _colorChooser.showDialog(_frmMealPlanner, "Selected Day Border", manager.ColorPreferences.getColor("selectedDayBorder"));
+				Color c = _colorChooser.showDialog(_frmMealPlanner, "Selected Day Border", manager.getColor("selectedDayBorder"));
 				if(c != null)
-					manager.ColorPreferences.setColor("selectedDayBorder", c);
+					manager.setColor("selectedDayBorder", c);
 					calendarPanel.revalidate();
 					calendarPanel.repaint();
 					calendarPanel.refreshCalendar();
@@ -289,9 +312,9 @@ public class MainWindow {
 		defaultDayBorder .addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Color c = _colorChooser.showDialog(_frmMealPlanner, "Day Border", manager.ColorPreferences.getColor("defaultDayBorder"));
+				Color c = _colorChooser.showDialog(_frmMealPlanner, "Day Border", manager.getColor("defaultDayBorder"));
 				if(c != null)
-					manager.ColorPreferences.setColor("defaultDayBorder", c);
+					manager.setColor("defaultDayBorder", c);
 					calendarPanel.revalidate();
 					calendarPanel.repaint();
 					calendarPanel.refreshCalendar();
@@ -303,9 +326,9 @@ public class MainWindow {
 		nonSelectedMonthBackground .addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Color c = _colorChooser.showDialog(_frmMealPlanner, "Other Month Background", manager.ColorPreferences.getColor("nonSelectedMonthBackground"));
+				Color c = _colorChooser.showDialog(_frmMealPlanner, "Other Month Background", manager.getColor("nonSelectedMonthBackground"));
 				if(c != null)
-					manager.ColorPreferences.setColor("nonSelectedMonthBackground", c);
+					manager.setColor("nonSelectedMonthBackground", c);
 					calendarPanel.revalidate();
 					calendarPanel.repaint();
 					calendarPanel.refreshCalendar();
@@ -317,7 +340,7 @@ public class MainWindow {
 		restoreDefaults.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				manager.ColorPreferences.restoreDefaultColors();
+				manager.restoreDefaultColors();
 				calendarPanel.revalidate();
 				calendarPanel.repaint();
 				calendarPanel.refreshCalendar();
@@ -332,14 +355,14 @@ public class MainWindow {
 		
 	private void populateSideDishes(DefaultListModel<SideDish> sideDishModel) {
 		sideDishModel.clear();
-		for(SideDish dish : manager.SideDishes.getSideDishes()) {
+		for(SideDish dish : manager.getSideDishes()) {
 			sideDishModel.addElement(dish);
 		}
 	}
 
 	private void populateMainDishes(DefaultListModel<MainDish> mainDishModel) {
 		mainDishModel.clear();
-		for(MainDish dish : manager.MainDishes.getDishes()) {
+		for(MainDish dish : manager.getMainDishes()) {
 			mainDishModel.addElement(dish);
 		}
 	}

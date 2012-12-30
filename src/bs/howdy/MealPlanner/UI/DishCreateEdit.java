@@ -47,20 +47,21 @@ public class DishCreateEdit extends JDialog {
 	}
 	
 	private void setupUI() {
-		setLayout(new BorderLayout(10, 10));
+		setLayout(new BorderLayout());
 		
 		final JPanel namePanel = new JPanel();
 		namePanel.setLayout(new BorderLayout());
-		namePanel.setBorder(new TitledBorder(null, "Name", TitledBorder.LEADING, TitledBorder.TOP, null, null)); //new Font("Arial", Font.BOLD, 16)
+		namePanel.setBorder(BorderFactory.createTitledBorder(null, "Name", TitledBorder.LEADING, TitledBorder.TOP)); //new Font("Arial", Font.BOLD, 16)
 		_name = new JTextField();
 		namePanel.add(_name);
 		add(namePanel, BorderLayout.NORTH);
 		
 		final JPanel descriptionPanel = new JPanel();
-		descriptionPanel.setBorder(new TitledBorder(null, "Description", TitledBorder.LEADING, TitledBorder.TOP, null, null)); //new Font("Arial", Font.BOLD, 16)
+		descriptionPanel.setBorder(BorderFactory.createTitledBorder(null, "Description", TitledBorder.LEADING, TitledBorder.TOP)); //new Font("Arial", Font.BOLD, 16)
 		_description = new JTextArea(10, 40);
+		_description.setLineWrap(true);
 		_description.setWrapStyleWord(true);
-		descriptionPanel.add(_description);
+		descriptionPanel.add(new JScrollPane(_description, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
 		add(descriptionPanel);
 		
 		JPanel buttonPanel = new JPanel();
@@ -79,29 +80,32 @@ public class DishCreateEdit extends JDialog {
 				}
 				if(_dishType == MAIN_DISH) {
 					if(_dishId > 0) {
-						MainDish dish = _manager.MainDishes.get(_dishId);
+						MainDish dish = _manager.getMainDish(_dishId);
 						dish.setName(_name.getText());
 						dish.setDescription(_description.getText());
+						_manager.update(dish);
 					}
 					else {
-						_manager.MainDishes.add(new MainDish(_name.getText(), _description.getText()));
+						_manager.add(new MainDish(_name.getText(), _description.getText()));
 					}
 					closeFrame();
 				}
 				if(_dishType == SIDE_DISH) {
 					if(_dishId > 0) {
-						SideDish dish = _manager.SideDishes.getSideDish(_dishId);
+						SideDish dish = _manager.getSideDish(_dishId);
 						dish.setName(_name.getText());
 						dish.setDescription(_description.getText());
+						_manager.update(dish);
 					}
 					else {
-						_manager.SideDishes.add(new SideDish(_name.getText(), _description.getText()));
+						_manager.add(new SideDish(_name.getText(), _description.getText()));
 					}
 					closeFrame();
 				}
 			}
 		});
 		buttonPanel.add(saveBtn);
+		getRootPane().setDefaultButton(saveBtn);
 		JButton cancelBtn = new JButton("Cancel");
 		cancelBtn.addMouseListener(new MouseAdapter() {
 			@Override

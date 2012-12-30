@@ -6,8 +6,6 @@ import javax.swing.*;
 import bs.howdy.MealPlanner.Entities.*;
 
 public class MealDayDetailsPanel extends JPanel {
-	private MealDay _mealDay;
-	
 	private JTextArea _description;
 	
 	public MealDayDetailsPanel() {
@@ -15,16 +13,13 @@ public class MealDayDetailsPanel extends JPanel {
 		setLayout(new BorderLayout());
 		_description = new JTextArea();
 		_description.setWrapStyleWord(true);
-		add(new JScrollPane(_description, JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
-		setVisible(false);
+		_description.setLineWrap(true);
+		add(new JScrollPane(_description, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
 	}
 	
 	public void setMealDay(MealDay mealDay) {
-		_mealDay = mealDay;
-		
 		if(mealDay == null) {
-			_description.setText("");
-			setVisible(false);
+			_description.setText("Select a day to see the details here...");
 		}
 		else {
 			StringBuilder sb = new StringBuilder();
@@ -40,12 +35,10 @@ public class MealDayDetailsPanel extends JPanel {
 				sb.append("\n\n");
 			}
 			if(sb.length() == 0) {
-				_description.setText("");
-				setVisible(false);
+				_description.setText("No meals for this day...");
 			}
 			else {
 				_description.setText(sb.toString());
-				setVisible(true);
 			}
 		}
 	}

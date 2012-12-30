@@ -1,16 +1,12 @@
 package bs.howdy.MealPlanner.UI;
 
-import java.awt.*;
+import java.awt.Component;
 import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.dnd.DnDConstants;
-import java.io.IOException;
 
 import javax.swing.*;
 
-import bs.howdy.MealPlanner.Entities.Dish;
-import bs.howdy.MealPlanner.Entities.MainDish;
-import bs.howdy.MealPlanner.Entities.SideDish;
+import bs.howdy.MealPlanner.Entities.*;
 
 public class DishTransferHandler extends TransferHandler {
 	@Override

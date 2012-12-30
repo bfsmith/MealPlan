@@ -1,61 +1,42 @@
 package bs.howdy.MealPlanner;
 
 import java.awt.Color;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import bs.howdy.MealPlanner.Entities.MainDish;
-import bs.howdy.MealPlanner.Entities.MealDay;
-import bs.howdy.MealPlanner.Entities.SideDish;
+import bs.howdy.MealPlanner.Entities.*;
 
 public class EntityManager {
 	
 	public EntityManager() {
-		MealDays = new MealDayService();
 		db = new Database(this);
-		ColorPreferences = new ColorPreferences(db);
 		_cache = new Cache();
 	}
 	
-	public MainDishService MainDishes;
-	public SideDishService SideDishes;
-	public MealDayService MealDays;
-	public ColorPreferences ColorPreferences;
 	private Database db;
 	private Cache _cache;
 
-	public void delete(MainDish dish) {
-		db.deleteMainDish(dish);
-	}
-
-	public void delete(SideDish dish) {
-		db.deleteSideDish(dish);
-	}
-	
 	public void populateTestData() {
 		for(int i = 0; i < 5; i++) {
-			MainDishes.add(new MainDish("Main Dish " + i, "Description " + i));
+			add(new MainDish("Main Dish " + i, "Description " + i));
 		}
 		for(int i = 0; i < 5; i++) {
-			SideDishes.add(new SideDish("Side Dish " + i, "Description " + i));
+			add(new SideDish("Side Dish " + i, "Description " + i));
 		}
-		List<SideDish> sds = SideDishes.getSideDishes();
+		List<SideDish> sds = getSideDishes();
 		
 		for(int i = 0; i <= 5; i++) {
 			MealDay md = new MealDay(2012, 12, i+1, this);
-			md.setMainDish(MainDishes.get(((i) % MainDishes.getDishes().size())));
+			md.setMainDish(getMainDish(((i) % getMainDishes().size())));
 			md.addSideDish(sds.get(i % sds.size()));
 			md.addSideDish(sds.get((i+1) % sds.size()));
 			md.addSideDish(sds.get((i+2) % sds.size()));
-			MealDays.addUpdateMealDay(md);
+			addUpdateMealDay(md);
 		}
 	}
 	
 	/** BEGIN MAIN DISHES **/
 	
-	public MainDish get(int id) {
+	public MainDish getMainDish(int id) {
 		MainDish md = getMainDishFromCache(id);
 		if(md == null ) {
 			md = db.getMainDish(id);
@@ -63,7 +44,7 @@ public class EntityManager {
 		}
 		return md;
 	}
-	public List<MainDish> getDishes()
+	public List<MainDish> getMainDishes()
 	{
 		List<MainDish> md = getMainDishListFromCache();
 		if(md == null ) {
@@ -81,8 +62,15 @@ public class EntityManager {
 		db.updateMainDish(dish);
 		putMainDishIntoCache(dish);
 		expireMainDishList();
+		expireMealDays();
 	}
-	
+	public void delete(MainDish dish) {
+		db.deleteMainDish(dish);
+		_cache.remove(getMainDishCacheKey(dish.getId()));
+		expireMainDishList();
+		expireMealDays();
+	}
+
 	private MainDish getMainDishFromCache(int id) {
 		return (MainDish)_cache.get(getMainDishCacheKey(id));
 	}
@@ -105,8 +93,7 @@ public class EntityManager {
 	}
 	private String getMainDishListCacheKey() {
 		return "MainDish:list";
-	}
-	
+	}	
 	/** END MAIN DISHES **/
 	
 	/** BEGIN SIDE DISHES **/
@@ -136,10 +123,17 @@ public class EntityManager {
 		db.updateSideDish(dish);
 		putSideDishIntoCache(dish);
 		expireSideDishList();
+		expireMealDays();
+	}
+	public void delete(SideDish dish) {
+		db.deleteSideDish(dish);
+		_cache.remove(getSideDishCacheKey(dish.getId()));
+		expireSideDishList();
+		expireMealDays();
 	}
 	
 	private SideDish getSideDishFromCache(int id) {
-		return (SideDish)_cache.get(getSideDishCacheKey(id)));
+		return (SideDish)_cache.get(getSideDishCacheKey(id));
 	}
 	private void putSideDishIntoCache(SideDish md) {
 		if(md != null)
@@ -160,58 +154,50 @@ public class EntityManager {
 	}
 	private String getSideDishListCacheKey() {
 		return "SideDish:list";
-	}
-	
+	}	
 	/** END SIDE DISHES **/
 	
 	/** BEGIN MEAL DAYS **/
-	
-	public class MealDayService {
-		private Map<String, MealDay> _mealDays;
-		
-		public MealDayService() {
-			_mealDays = new HashMap<String, MealDay>();
+	public MealDay getMealDay(int year, int month, int day) {
+		MealDay md = getMealDayFromCache(year, month, day);
+		if(md == null ) {
+			md = db.getMealDay(year, month, day);
+			putMealDayIntoCache(md);
 		}
-		
-		public MealDay getMealDay(int year, int month, int day) {
-			return db.getMealDay(year, month, day);
-		}
-		public void addUpdateMealDay(MealDay mealDay) {
-			if(mealDay.getId() > 0)
-				db.updateMealDay(mealDay);
-			else
-				db.addMealDay(mealDay);
-		}
-		
-		private MealDay getMealDayFromCache(int year, int month, int day) {
-			return (MealDay)_cache.get(getMealDayCacheKey(year, month, day));
-		}
-		private void putMealDayIntoCache(MealDay md) {
-			if(md != null)
-				_cache.put(getMealDayCacheKey(md.getYear(), md.getMonth(), md.getDay()), md);
-		}
-		private String getMealDayCacheKey(int year, int month, int day) {
-			return "MealDay:" + year + ":" + month + ":" + day;
-		}
+		return md;
 	}
-
+	public void addUpdateMealDay(MealDay mealDay) {
+		if(mealDay.getId() > 0)
+			db.updateMealDay(mealDay);
+		else
+			db.addMealDay(mealDay);
+		putMealDayIntoCache(mealDay);
+	}
+	
+	private MealDay getMealDayFromCache(int year, int month, int day) {
+		return (MealDay)_cache.get(getMealDayCacheKey(year, month, day));
+	}
+	private void putMealDayIntoCache(MealDay md) {
+		if(md != null)
+			_cache.put(getMealDayCacheKey(md.getYear(), md.getMonth(), md.getDay()), md);
+	}
+	private void expireMealDays() {
+		_cache.removeAll("MealDay:");
+	}
+	private String getMealDayCacheKey(int year, int month, int day) {
+		return "MealDay:" + year + ":" + month + ":" + day;
+	}
 	/** END MEAL DAYS **/
 	
-	public class ColorPreferences {
-		private Database _db;
-		
-		public ColorPreferences(Database db) {
-			_db = db;
-		}
-		
-		public Color getColor(String name) {
-			return _db.getColor(name);
-		}
-		public void setColor(String name, Color color) {
-			_db.setColorPreference(name, color);
-		}
-		public void restoreDefaultColors() {
-			_db.restoreColorPreferences();
-		}
+	/** BEGIN COLOR PREFERENCES **/
+	public Color getColor(String name) {
+		return db.getColor(name);
 	}
+	public void setColor(String name, Color color) {
+		db.setColorPreference(name, color);
+	}
+	public void restoreDefaultColors() {
+		db.restoreColorPreferences();
+	}
+	/** END COLOR PREFERENCES **/
 }
